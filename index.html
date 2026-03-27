@@ -1,0 +1,2456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>🧀 Cheese Clicker — Ultimate Edition</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-deep:#0d0800;--bg-dark:#150c00;--bg-mid:#1e1100;--bg-panel:#1a0e00;
+  --bg-card:#221500;--bg-card2:#2a1a00;--bg-hover:#332000;
+  --gold-dark:#7a5000;--gold-dim:#b87820;--gold:#d4952e;--gold-bright:#f5b942;
+  --gold-shine:#ffe87a;--gold-glow:#ffd700;
+  --amber:#ff9900;--amber2:#ffb347;--orange:#ff7700;--orange2:#ff5500;
+  --cream:#fff8e7;--ivory:#ffeebb;--pale:#ffe599;
+  --green:#5ecf6b;--green2:#3aab45;--teal:#2ecfb0;
+  --blue:#4ab8ff;--blue2:#2090e8;
+  --purple:#c87eff;--purple2:#9944ee;--purple3:#6622bb;
+  --pink:#ff77c8;--red:#ff4444;--red2:#cc2222;
+  --white:#fffef8;--muted:#7a5a30;--muted2:#5a4020;
+  --border:#3a2510;--border2:#4a3015;--border3:#5a4020;
+  --font-title:'Fredoka One',cursive;--font-body:'Quicksand',sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--font-body);background:var(--bg-deep);color:var(--white);
+  user-select:none;-webkit-tap-highlight-color:transparent;
+  cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28'%3E%3Ctext y='22' font-size='20'%3E🧀%3C/text%3E%3C/svg%3E") 4 20,auto}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:var(--bg-dark)}
+::-webkit-scrollbar-thumb{background:var(--border3);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--gold-dim)}
+
+/* BACKGROUND CANVAS */
+#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5}
+
+/* APP GRID */
+#app{position:relative;z-index:1;display:grid;
+  grid-template-rows:58px 1fr;
+  grid-template-columns:278px 1fr 308px;
+  height:100vh;overflow:hidden}
+
+/* TOP BAR */
+#topbar{grid-column:1/-1;display:grid;
+  grid-template-columns:278px 1fr 308px;
+  align-items:center;
+  background:linear-gradient(90deg,var(--bg-panel),var(--bg-mid) 50%,var(--bg-panel));
+  border-bottom:1px solid var(--border2);
+  box-shadow:0 2px 20px rgba(0,0,0,.6);
+  position:relative;z-index:50}
+#topbar::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--gold-dim),var(--gold-bright),var(--gold-dim),transparent)}
+
+#logo-sec{display:flex;align-items:center;gap:10px;padding:0 16px}
+.logo-cheese{font-size:1.9rem;display:inline-block;
+  animation:logoBob 4s ease-in-out infinite;
+  filter:drop-shadow(0 2px 8px rgba(245,185,66,.6))}
+@keyframes logoBob{0%,100%{transform:rotate(-8deg) scale(1)}50%{transform:rotate(8deg) scale(1.08)}}
+#logo-sec h1{font-family:var(--font-title);font-size:1.3rem;color:var(--gold-bright);
+  text-shadow:0 2px 10px rgba(245,185,66,.5);line-height:1}
+#logo-sec h1 small{display:block;font-family:var(--font-body);font-size:.5rem;
+  font-weight:600;color:var(--muted);letter-spacing:3px;text-transform:uppercase}
+
+#counter-sec{text-align:center;padding:2px 0}
+#main-count{font-family:var(--font-title);font-size:2.2rem;color:var(--gold-glow);
+  text-shadow:0 0 25px rgba(255,215,0,.5),0 2px 4px rgba(0,0,0,.9);
+  line-height:1;transition:transform .08s}
+#main-count.bump{transform:scale(1.05)}
+#sub-count{font-size:.65rem;color:var(--gold-dim);letter-spacing:.5px}
+#cps-count{font-size:.72rem;color:var(--amber2);font-weight:600}
+
+#topbar-right{display:flex;align-items:center;justify-content:flex-end;gap:6px;padding:0 12px}
+.tb-btn{background:var(--bg-card);border:1px solid var(--border2);color:var(--ivory);
+  font-family:var(--font-body);font-weight:600;font-size:.62rem;padding:5px 9px;
+  border-radius:8px;cursor:pointer;transition:all .18s;letter-spacing:.5px;white-space:nowrap}
+.tb-btn:hover{background:var(--bg-hover);border-color:var(--gold-dim);color:var(--gold-bright);
+  box-shadow:0 0 12px rgba(245,185,66,.3)}
+#aged-pill{background:linear-gradient(135deg,#2a0050,#4a0090);border:1px solid var(--purple2);
+  border-radius:999px;padding:4px 12px;font-size:.62rem;font-weight:700;
+  color:var(--purple);box-shadow:0 0 12px rgba(200,126,255,.3);white-space:nowrap}
+
+/* LEFT PANEL */
+#shop-panel{background:var(--bg-panel);border-right:1px solid var(--border);
+  overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column}
+.ph{position:sticky;top:0;z-index:10;background:var(--bg-panel);
+  padding:7px 12px 5px;font-family:var(--font-title);font-size:.82rem;
+  color:var(--gold-bright);letter-spacing:1px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:6px;backdrop-filter:blur(4px)}
+.ph::after{content:'';position:absolute;bottom:0;left:12px;right:12px;height:1px;
+  background:linear-gradient(90deg,transparent,var(--gold-dim),transparent)}
+
+#buy-bar{display:flex;gap:4px;padding:5px 8px;background:var(--bg-dark);
+  border-bottom:1px solid var(--border)}
+.bm-btn{flex:1;background:var(--bg-card);border:1px solid var(--border2);
+  color:var(--muted);font-family:var(--font-body);font-size:.6rem;font-weight:700;
+  padding:4px 4px;border-radius:6px;cursor:pointer;transition:all .15s;text-align:center}
+.bm-btn.active{background:linear-gradient(135deg,var(--gold-dark),var(--gold-dim));
+  border-color:var(--gold-bright);color:var(--gold-shine);
+  box-shadow:0 0 10px rgba(245,185,66,.4)}
+
+#producers-list{padding:5px;display:flex;flex-direction:column;gap:3px}
+.prod-card{background:linear-gradient(135deg,var(--bg-card),var(--bg-card2));
+  border:1px solid var(--border);border-radius:10px;padding:7px 9px;
+  cursor:pointer;transition:all .15s;display:grid;
+  grid-template-columns:36px 1fr auto;align-items:center;gap:7px;
+  position:relative;overflow:hidden}
+.prod-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;
+  background:var(--border2);transition:all .15s;border-radius:3px 0 0 3px}
+.prod-card.can-afford::before{background:linear-gradient(180deg,var(--green),var(--teal));
+  box-shadow:2px 0 8px rgba(94,207,107,.4)}
+.prod-card.locked{opacity:.3;cursor:not-allowed;filter:grayscale(.8)}
+.prod-card:not(.locked):hover{border-color:var(--gold-dim);
+  background:linear-gradient(135deg,var(--bg-card2),var(--bg-hover));
+  transform:translateX(3px);box-shadow:-3px 0 12px rgba(212,149,46,.2)}
+.prod-card.can-afford:not(.locked):hover{border-color:var(--green);
+  box-shadow:-3px 0 12px rgba(94,207,107,.3)}
+.prod-card:not(.locked):active{transform:translateX(1px) scale(.99)}
+.prod-icon{font-size:1.65rem;text-align:center;line-height:1;
+  filter:drop-shadow(0 2px 4px rgba(0,0,0,.5));transition:transform .2s}
+.prod-card:not(.locked):hover .prod-icon{transform:scale(1.15) rotate(-5deg)}
+.prod-info{min-width:0}
+.prod-name{font-size:.73rem;font-weight:700;color:var(--cream);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2}
+.prod-cps-line{font-size:.58rem;color:var(--gold-dim);white-space:nowrap}
+.prod-cost-line{font-size:.67rem;font-weight:700;color:var(--gold-bright);white-space:nowrap}
+.prod-card.can-afford .prod-cost-line{color:var(--green)}
+.prod-owned{font-family:var(--font-title);font-size:1rem;color:var(--gold-bright);
+  background:var(--bg-dark);border:1px solid var(--border2);border-radius:6px;
+  min-width:30px;height:26px;display:flex;align-items:center;justify-content:center;
+  transition:all .15s}
+.prod-card.can-afford .prod-owned{background:linear-gradient(135deg,#0a2010,#103020);
+  border-color:var(--green2);color:var(--green);box-shadow:0 0 8px rgba(94,207,107,.3)}
+
+#upg-section{padding:5px}
+.upg-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.upg-card{background:linear-gradient(135deg,var(--bg-card),var(--bg-card2));
+  border:1px solid var(--border);border-radius:9px;padding:6px 5px;
+  cursor:pointer;transition:all .15s;text-align:center;position:relative;overflow:hidden}
+.upg-card:hover:not(.purchased){border-color:var(--purple);transform:scale(1.04);
+  box-shadow:0 0 12px rgba(200,126,255,.25)}
+.upg-card.can-afford:not(.purchased){border-color:rgba(94,207,107,.45)}
+.upg-card.can-afford:hover:not(.purchased){border-color:var(--green);
+  box-shadow:0 0 12px rgba(94,207,107,.3)}
+.upg-card.purchased{opacity:.28;cursor:default;filter:grayscale(.5)}
+.upg-card.purchased .upg-chk{display:flex}
+.upg-chk{position:absolute;inset:0;background:rgba(0,0,0,.45);
+  align-items:center;justify-content:center;font-size:1.3rem;display:none}
+.upg-icon{font-size:1.25rem;line-height:1.3}
+.upg-name{font-size:.56rem;font-weight:700;color:var(--cream);line-height:1.2;margin-top:2px}
+.upg-cost{font-size:.54rem;color:var(--gold-dim);margin-top:1px}
+.upg-card.can-afford .upg-cost{color:var(--green)}
+
+/* TOOLTIP */
+.has-tt{position:relative}
+.tt{position:absolute;bottom:calc(100% + 7px);left:50%;transform:translateX(-50%);
+  background:var(--bg-dark);border:1px solid var(--border3);border-radius:9px;
+  padding:6px 10px;font-size:.63rem;color:var(--ivory);z-index:300;
+  opacity:0;pointer-events:none;transition:opacity .15s;
+  box-shadow:0 8px 30px rgba(0,0,0,.7);max-width:175px;white-space:normal;text-align:left;
+  width:max-content}
+.tt strong{color:var(--gold-bright);display:block;margin-bottom:2px}
+.tt .tt-cps{color:var(--amber2);font-size:.58rem}
+.tt .tt-desc{color:var(--muted);font-size:.6rem;margin-top:2px}
+.has-tt:hover .tt{opacity:1}
+
+/* CENTER STAGE */
+#stage{background:
+  radial-gradient(ellipse 65% 75% at 50% 85%,rgba(65,38,0,.65) 0%,transparent 70%),
+  radial-gradient(ellipse 80% 40% at 50% 5%,rgba(25,12,0,.4) 0%,transparent 55%),
+  var(--bg-deep);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  position:relative;overflow:hidden}
+#fx-canvas{position:absolute;inset:0;z-index:1;pointer-events:none}
+
+#stage-inner{position:relative;z-index:2;display:flex;flex-direction:column;
+  align-items:center;gap:16px}
+
+/* COMBO HUD */
+#combo-hud{height:65px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center}
+#combo-x{font-family:var(--font-title);font-size:3.2rem;color:var(--amber);
+  text-shadow:0 0 35px rgba(255,153,0,.8),0 4px 8px rgba(0,0,0,.9);
+  line-height:1;opacity:0;transform:scale(.6) translateY(12px);transition:.25s}
+#combo-label{font-size:.58rem;font-weight:700;letter-spacing:4px;
+  text-transform:uppercase;color:var(--orange);opacity:0;transition:.25s}
+#combo-bwrap{width:110px;height:3px;background:var(--bg-card);
+  border-radius:3px;margin-top:4px;overflow:hidden;opacity:0;transition:.3s}
+#combo-bfill{height:100%;background:linear-gradient(90deg,var(--orange2),var(--amber),var(--gold-shine));
+  border-radius:3px;transform-origin:left;transition:transform .08s linear}
+.combo-on #combo-x,.combo-on #combo-label,.combo-on #combo-bwrap{
+  opacity:1;transform:scale(1) translateY(0)}
+
+/* CHEESE BUTTON */
+#cheese-wrap{position:relative;cursor:pointer;-webkit-tap-highlight-color:transparent}
+#cheese-shadow{position:absolute;bottom:-22px;left:50%;transform:translateX(-50%);
+  width:68%;height:28px;
+  background:radial-gradient(ellipse,rgba(245,185,66,.35),transparent 70%);
+  border-radius:50%;filter:blur(9px);animation:shPulse 3.5s ease-in-out infinite;pointer-events:none}
+@keyframes shPulse{0%,100%{opacity:.5;transform:translateX(-50%) scaleX(.88)}
+  50%{opacity:.85;transform:translateX(-50%) scaleX(1.12)}}
+#cheese-svg-wrap{width:215px;height:215px;
+  animation:chFloat 3.5s ease-in-out infinite;will-change:transform;
+  filter:drop-shadow(0 8px 28px rgba(245,185,66,.38));transition:filter .3s}
+#cheese-wrap:hover #cheese-svg-wrap{filter:drop-shadow(0 14px 40px rgba(245,185,66,.7))}
+@keyframes chFloat{0%,100%{transform:translateY(0) rotate(-2.5deg)}
+  50%{transform:translateY(-11px) rotate(2.5deg)}}
+#cheese-wrap.clicking #cheese-svg-wrap{animation:chClick .12s ease-out forwards}
+@keyframes chClick{0%{transform:scale(1) rotate(-2deg)}
+  45%{transform:scale(.87) rotate(-7deg)}100%{transform:scale(1) rotate(-2deg)}}
+#glow-ring{position:absolute;inset:-18px;border-radius:50%;
+  border:3px solid transparent;opacity:0;pointer-events:none;
+  transition:opacity .4s,border-color .4s,box-shadow .4s}
+.combo-hi #glow-ring{opacity:1;border-color:var(--amber);
+  box-shadow:0 0 30px var(--amber),inset 0 0 30px rgba(255,153,0,.12);
+  animation:ringRot 2s linear infinite}
+@keyframes ringRot{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+
+/* STATS ROW */
+#stats-row{display:flex;gap:12px}
+.stat-pill{background:rgba(255,255,255,.04);border:1px solid var(--border2);
+  border-radius:999px;padding:5px 16px;text-align:center;min-width:88px;
+  backdrop-filter:blur(4px)}
+.sp-val{font-family:var(--font-title);font-size:.93rem;color:var(--gold-bright);line-height:1.1}
+.sp-lbl{font-size:.53rem;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px}
+
+/* EVENT STRIP */
+#event-strip{position:absolute;top:10px;left:50%;transform:translateX(-50%);
+  display:flex;gap:7px;z-index:15;pointer-events:none}
+.ev-badge{background:linear-gradient(135deg,var(--bg-card2),var(--bg-hover));
+  border:1px solid var(--gold-dim);border-radius:999px;padding:4px 13px;
+  font-size:.62rem;font-weight:700;color:var(--gold-bright);
+  display:flex;align-items:center;gap:5px;box-shadow:0 0 14px rgba(245,185,66,.35);
+  animation:evPulse 2s ease-in-out infinite}
+.ev-badge.frenzy{border-color:var(--amber);color:var(--amber2);box-shadow:0 0 14px rgba(255,153,0,.4)}
+.ev-badge.mold{border-color:var(--green);color:var(--green);box-shadow:0 0 14px rgba(94,207,107,.4)}
+.ev-badge.golden{border-color:var(--gold-glow);color:var(--gold-shine)}
+@keyframes evPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+.ev-badge .ev-t{color:var(--muted)}
+
+/* GOLDEN CHEESE */
+.golden-orb{position:absolute;z-index:20;cursor:pointer;
+  filter:drop-shadow(0 0 14px rgba(255,215,0,.9));
+  animation:gOrb 0.4s cubic-bezier(.34,1.56,.64,1) forwards}
+@keyframes gOrb{from{opacity:0;transform:scale(.1) rotate(-20deg)}
+  to{opacity:1;transform:scale(1) rotate(0)}}
+.golden-orb:hover{filter:drop-shadow(0 0 22px rgba(255,215,0,1));transform:scale(1.15)!important}
+.golden-orb svg{display:block}
+
+/* RIPPLE */
+#click-ripple{position:absolute;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,215,0,.28),transparent 70%);
+  pointer-events:none;width:200px;height:200px;
+  opacity:0;transform:scale(0);z-index:3}
+#click-ripple.go{animation:ripGo .38s ease-out forwards}
+@keyframes ripGo{from{opacity:.55;transform:scale(0)}to{opacity:0;transform:scale(3)}}
+
+/* SCREEN FX */
+#sfx{position:fixed;inset:0;z-index:1000;pointer-events:none;opacity:0;transition:opacity .15s}
+#sfx.fo{opacity:1}
+#svign{position:fixed;inset:0;z-index:999;pointer-events:none;opacity:0;
+  border:16px solid transparent;box-shadow:inset 0 0 80px transparent;transition:.5s}
+#svign.fren{opacity:1;border-color:rgba(255,140,0,.22);box-shadow:inset 0 0 80px rgba(255,140,0,.18)}
+#svign.mold{opacity:1;border-color:rgba(94,207,107,.22);box-shadow:inset 0 0 80px rgba(94,207,107,.15)}
+
+/* RIGHT PANEL */
+#right-panel{background:var(--bg-panel);border-left:1px solid var(--border);
+  display:flex;flex-direction:column;overflow:hidden}
+#prestige-bar{padding:10px 12px;
+  background:linear-gradient(135deg,#120020,#1e0038);
+  border-bottom:1px solid #3a0060;flex-shrink:0}
+#pt{font-family:var(--font-title);font-size:.78rem;color:var(--purple);
+  letter-spacing:1px;display:flex;align-items:center;justify-content:space-between;margin-bottom:5px}
+#pp-wrap{height:5px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden;margin-bottom:6px}
+#pp{height:100%;background:linear-gradient(90deg,var(--purple3),var(--purple),var(--pink));
+  border-radius:3px;transition:width .5s ease;box-shadow:0 0 8px rgba(200,126,255,.5);width:0%}
+#prestige-btn{background:linear-gradient(135deg,var(--purple3),var(--purple2));
+  border:1px solid var(--purple);color:var(--white);font-family:var(--font-title);
+  font-size:.82rem;padding:7px 12px;border-radius:8px;cursor:pointer;
+  transition:all .18s;box-shadow:0 0 15px rgba(200,126,255,.2);width:100%}
+#prestige-btn:not(:disabled):hover{transform:scale(1.02);box-shadow:0 0 25px rgba(200,126,255,.5)}
+#prestige-btn:disabled{opacity:.38;cursor:not-allowed}
+#pinfo{font-size:.56rem;color:#7a50aa;text-align:center;line-height:1.4;margin-top:4px}
+
+#rp-tabs{display:flex;border-bottom:1px solid var(--border);background:var(--bg-dark);flex-shrink:0}
+.rp-tab{flex:1;padding:7px 2px;background:none;border:none;color:var(--muted);
+  font-family:var(--font-body);font-size:.58rem;font-weight:700;cursor:pointer;
+  transition:all .15s;border-bottom:2px solid transparent;margin-bottom:-1px;letter-spacing:.3px}
+.rp-tab.active{color:var(--gold-bright);border-bottom-color:var(--gold-bright)}
+.rp-tab:hover:not(.active){color:var(--gold-dim)}
+#rp-content{flex:1;overflow-y:auto;overflow-x:hidden}
+.rp-pane{display:none;padding:9px}
+.rp-pane.active{display:block}
+
+/* STATS */
+.sg{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.sc{background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:5px 7px}
+.scv{font-family:var(--font-title);font-size:.85rem;color:var(--gold-bright);line-height:1.1}
+.scl{font-size:.56rem;color:var(--muted);line-height:1.2;margin-top:1px}
+.bdk{margin-top:9px}
+.bdk-hd{font-size:.62rem;font-weight:700;color:var(--gold);margin-bottom:4px;letter-spacing:.5px}
+.bdk-row{display:flex;justify-content:space-between;align-items:center;
+  padding:3px 5px;border-bottom:1px solid rgba(255,255,255,.04);font-size:.6rem}
+.bdk-row .bnm{color:var(--ivory)}.bdk-row .bcp{color:var(--gold-dim);font-weight:600}
+.bdk-row .bpct{color:var(--muted);font-size:.53rem}
+
+/* ACHIEVEMENTS */
+#ach-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+.ach{background:var(--bg-card);border:1px solid var(--border);border-radius:8px;
+  padding:7px 3px;text-align:center;cursor:default;transition:all .2s;position:relative}
+.ach.unl{border-color:var(--gold-dim);
+  box-shadow:0 0 8px rgba(245,185,66,.25);background:linear-gradient(135deg,#1e1400,#2a1e00)}
+.ach.unl:hover{transform:scale(1.06);box-shadow:0 0 16px rgba(245,185,66,.4)}
+.ach.lck{filter:grayscale(.85);opacity:.4}
+.ach-ico{font-size:1.4rem;line-height:1.3}
+.ach-nm{font-size:.52rem;font-weight:700;color:var(--cream);line-height:1.2;margin-top:1px}
+.ach-tt{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);
+  background:var(--bg-dark);border:1px solid var(--border3);border-radius:8px;
+  padding:6px 9px;font-size:.6rem;color:var(--ivory);white-space:nowrap;
+  z-index:400;opacity:0;pointer-events:none;transition:opacity .15s;
+  box-shadow:0 8px 30px rgba(0,0,0,.8);max-width:160px;white-space:normal;width:max-content}
+.ach-tt strong{color:var(--gold-bright);display:block;margin-bottom:1px}
+.ach:hover .ach-tt{opacity:1}
+
+/* MILESTONES */
+#milestones-list{display:flex;flex-direction:column;gap:4px}
+.ms-item{background:var(--bg-card);border:1px solid var(--border);border-radius:8px;
+  padding:7px 9px;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:8px}
+.ms-item.done{border-color:var(--green2);background:linear-gradient(135deg,#0a2010,#0e2815)}
+.ms-ico{font-size:1.1rem}
+.ms-txt{font-size:.62rem;color:var(--cream)}
+.ms-txt small{display:block;font-size:.55rem;color:var(--muted)}
+.ms-chk{font-size:1rem;color:var(--green)}
+.ms-bar-wrap{height:3px;background:var(--bg-dark);border-radius:3px;overflow:hidden;margin-top:3px}
+.ms-bar{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-shine));
+  border-radius:3px;transition:width .5s}
+
+/* CHEESE MUTATIONS */
+#mut-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.mut-card{background:var(--bg-card);border:1px solid var(--border);border-radius:9px;
+  padding:8px 7px;text-align:center;cursor:pointer;transition:all .15s;position:relative;overflow:hidden}
+.mut-card.active{border-color:var(--teal);box-shadow:0 0 12px rgba(46,207,176,.3)}
+.mut-card.locked{opacity:.35;cursor:not-allowed}
+.mut-card:not(.locked):not(.active):hover{border-color:var(--blue);transform:scale(1.03)}
+.mut-ico{font-size:1.5rem}
+.mut-nm{font-size:.62rem;font-weight:700;color:var(--cream);margin-top:2px}
+.mut-eff{font-size:.56rem;color:var(--teal);margin-top:1px}
+.mut-cost{font-size:.55rem;color:var(--gold-dim);margin-top:2px}
+.mut-act-badge{position:absolute;top:3px;right:3px;font-size:.45rem;
+  background:var(--teal);color:var(--bg-dark);padding:1px 5px;border-radius:999px;font-weight:700}
+
+/* NOTIFICATIONS */
+#notifs{position:fixed;top:66px;right:14px;display:flex;flex-direction:column;gap:6px;
+  z-index:2000;pointer-events:none;max-width:240px}
+.notif{background:linear-gradient(135deg,var(--bg-card2),var(--bg-hover));
+  border:1px solid var(--gold-dim);border-radius:10px;padding:8px 13px;
+  font-size:.72rem;color:var(--white);box-shadow:0 4px 20px rgba(0,0,0,.5);
+  animation:nIn .3s cubic-bezier(.34,1.56,.64,1),nOut .3s ease-in 2.6s forwards}
+.notif.bad{border-color:var(--red)}
+.notif.purple{border-color:var(--purple)}
+.notif.green{border-color:var(--green)}
+.notif.blue{border-color:var(--blue)}
+@keyframes nIn{from{opacity:0;transform:translateX(25px) scale(.9)}to{opacity:1;transform:translateX(0) scale(1)}}
+@keyframes nOut{to{opacity:0;transform:translateX(25px) scale(.85)}}
+
+/* BIG EVENT BANNER */
+#event-banner{position:fixed;top:66px;left:50%;transform:translateX(-50%);
+  background:linear-gradient(135deg,var(--bg-card2),var(--bg-hover));
+  border:2px solid var(--gold-bright);border-radius:14px;
+  padding:11px 24px;font-family:var(--font-title);font-size:1.05rem;
+  color:var(--gold-glow);text-align:center;z-index:2000;
+  box-shadow:0 0 40px rgba(255,215,0,.4),0 8px 30px rgba(0,0,0,.6);
+  animation:bnrPop .4s cubic-bezier(.34,1.56,.64,1) forwards;pointer-events:none;display:none}
+@keyframes bnrPop{from{transform:translateX(-50%) scale(.6) translateY(-20px);opacity:0}
+  to{transform:translateX(-50%) scale(1) translateY(0);opacity:1}}
+
+/* MODAL */
+#modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:3000;
+  display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+#modal-bg.open{display:flex}
+#modal{background:linear-gradient(135deg,var(--bg-panel),var(--bg-card2));
+  border:1px solid var(--border3);border-radius:16px;padding:24px;
+  max-width:380px;width:90%;box-shadow:0 0 60px rgba(245,185,66,.25),0 20px 60px rgba(0,0,0,.7)}
+#modal h2{font-family:var(--font-title);color:var(--gold-bright);font-size:1.4rem;margin-bottom:10px}
+#modal p{font-size:.82rem;color:var(--cream);line-height:1.7;margin-bottom:18px}
+.mbtn-row{display:flex;gap:8px}
+.mbtn{flex:1;padding:10px;border-radius:9px;font-family:var(--font-title);
+  font-size:.9rem;cursor:pointer;border:none;transition:all .18s}
+.mbtn:hover{transform:scale(1.03)}
+.mbtn.conf{background:linear-gradient(135deg,var(--purple3),var(--purple2));color:#fff;
+  box-shadow:0 0 15px rgba(200,126,255,.3)}
+.mbtn.canc{background:var(--bg-hover);color:var(--cream);border:1px solid var(--border3)}
+
+/* MILESTONE POPUP */
+#ms-popup{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);
+  background:linear-gradient(135deg,var(--bg-card2),var(--bg-hover));
+  border:2px solid var(--gold-bright);border-radius:14px;padding:14px 28px;
+  font-family:var(--font-title);font-size:1rem;color:var(--gold-glow);
+  text-align:center;z-index:2000;display:none;
+  box-shadow:0 0 50px rgba(255,215,0,.3),0 10px 40px rgba(0,0,0,.7);
+  animation:msPop .5s cubic-bezier(.34,1.56,.64,1) forwards;pointer-events:none}
+@keyframes msPop{from{opacity:0;transform:translateX(-50%) scale(.5) translateY(30px)}
+  to{opacity:1;transform:translateX(-50%) scale(1) translateY(0)}}
+
+/* SAVE INDICATOR */
+#save-ind{position:fixed;bottom:10px;right:14px;font-size:.58rem;color:var(--muted);
+  opacity:0;transition:opacity .3s;pointer-events:none}
+#save-ind.show{opacity:1}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  #app{grid-template-columns:220px 1fr 250px}
+  #topbar{grid-template-columns:220px 1fr 250px}
+  #cheese-svg-wrap{width:180px;height:180px}
+}
+@media(max-width:650px){
+  #app{grid-template-columns:1fr;grid-template-rows:auto 1fr auto auto}
+  #topbar{grid-template-columns:1fr}
+  #logo-sec,#topbar-right{display:none}
+  #shop-panel,#right-panel{max-height:240px}
+}
+
+/* CHEESE SVG ANIMATION DETAILS */
+.ch-drip{animation:drip 2s ease-in-out infinite;transform-origin:top}
+@keyframes drip{0%,100%{transform:scaleY(1)}50%{transform:scaleY(1.15)}}
+.ch-hole{animation:holeGlow 3s ease-in-out infinite}
+@keyframes holeGlow{0%,100%{opacity:.65}50%{opacity:.9}}
+.ch-shine{animation:shineMov 4s ease-in-out infinite;transform-origin:center}
+@keyframes shineMov{0%,100%{opacity:.12;transform:scale(1) translate(0,0)}
+  50%{opacity:.22;transform:scale(1.1) translate(2px,-2px)}}
+
+/* FRENZY ANIMATION ON COUNTER */
+.frenzy-count{animation:frenzyPulse .5s ease-in-out infinite}
+@keyframes frenzyPulse{0%,100%{text-shadow:0 0 25px rgba(255,215,0,.5)}
+  50%{text-shadow:0 0 50px rgba(255,153,0,.9),0 0 80px rgba(255,100,0,.4)}}
+
+/* OFFLINE MODAL SPECIFIC */
+#offline-cheese{font-family:var(--font-title);font-size:1.6rem;color:var(--gold-glow);
+  text-align:center;margin:10px 0;text-shadow:0 0 20px rgba(255,215,0,.5)}
+</style>
+</head>
+<body>
+<canvas id="bg-canvas"></canvas>
+<div id="sfx"></div>
+<div id="svign"></div>
+<div id="notifs"></div>
+<div id="event-banner"></div>
+<div id="ms-popup"></div>
+<div id="save-ind">✓ Saved</div>
+
+<!-- MODAL -->
+<div id="modal-bg">
+  <div id="modal">
+    <h2 id="modal-title"></h2>
+    <p id="modal-body"></p>
+    <div class="mbtn-row">
+      <button class="mbtn canc" id="modal-canc">Cancel</button>
+      <button class="mbtn conf" id="modal-conf">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+
+  <!-- TOP BAR -->
+  <div id="topbar">
+    <div id="logo-sec">
+      <span class="logo-cheese">🧀</span>
+      <h1>Cheese Clicker<small>Ultimate Edition</small></h1>
+    </div>
+    <div id="counter-sec">
+      <div id="main-count">0</div>
+      <div id="sub-count">cheese</div>
+      <div id="cps-count">0 per second</div>
+    </div>
+    <div id="topbar-right">
+      <div id="aged-pill">🟤 Aged: <span id="aged-val">0</span></div>
+      <button class="tb-btn" onclick="openStats()">📊 Stats</button>
+      <button class="tb-btn" onclick="saveGame()">💾 Save</button>
+      <button class="tb-btn" onclick="confirmReset()">🔄 Reset</button>
+    </div>
+  </div>
+
+  <!-- LEFT: SHOP -->
+  <div id="shop-panel">
+    <div class="ph">🏪 Cheese Shop</div>
+    <div id="buy-bar">
+      <button class="bm-btn active" onclick="setBuyMode(1,this)">Buy ×1</button>
+      <button class="bm-btn" onclick="setBuyMode(10,this)">×10</button>
+      <button class="bm-btn" onclick="setBuyMode(100,this)">×100</button>
+      <button class="bm-btn" onclick="setBuyMode(-1,this)">Max</button>
+    </div>
+    <div id="producers-list"></div>
+    <div id="upg-section">
+      <div class="ph" style="position:relative;top:auto">⬆️ Upgrades</div>
+      <div style="height:6px"></div>
+      <div class="upg-grid" id="upg-grid"></div>
+    </div>
+  </div>
+
+  <!-- CENTER: STAGE -->
+  <div id="stage">
+    <canvas id="fx-canvas"></canvas>
+    <div id="click-ripple"></div>
+    <div id="event-strip"></div>
+
+    <div id="stage-inner">
+      <div id="combo-hud">
+        <div id="combo-x">×0</div>
+        <div id="combo-label">COMBO STREAK!</div>
+        <div id="combo-bwrap"><div id="combo-bfill"></div></div>
+      </div>
+
+      <div id="cheese-wrap" onmousedown="handleClick(event)" ontouchstart="handleClick(event)">
+        <div id="cheese-shadow"></div>
+        <div id="cheese-svg-wrap">
+          <!-- BIG CHEESE SVG -->
+          <svg viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%">
+            <defs>
+              <radialGradient id="cg1" cx="40%" cy="35%" r="65%">
+                <stop offset="0%" stop-color="#ffe87a"/>
+                <stop offset="50%" stop-color="#f5b942"/>
+                <stop offset="100%" stop-color="#c8841e"/>
+              </radialGradient>
+              <radialGradient id="cg2" cx="50%" cy="50%" r="60%">
+                <stop offset="0%" stop-color="#d4952e"/>
+                <stop offset="100%" stop-color="#8a5010"/>
+              </radialGradient>
+              <filter id="cheese-glow">
+                <feGaussianBlur stdDeviation="3" result="blur"/>
+                <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+              </filter>
+              <radialGradient id="hole-g" cx="35%" cy="35%" r="65%">
+                <stop offset="0%" stop-color="#b87820" stop-opacity=".7"/>
+                <stop offset="100%" stop-color="#7a4e10" stop-opacity=".9"/>
+              </radialGradient>
+            </defs>
+            <!-- Wedge body -->
+            <polygon points="110,12 204,185 16,185" fill="url(#cg1)" filter="url(#cheese-glow)"/>
+            <!-- Top face -->
+            <polygon points="110,16 198,180 22,180" fill="url(#cg1)" opacity=".9"/>
+            <!-- Side shading -->
+            <polygon points="110,16 198,180 204,185 110,12" fill="url(#cg2)" opacity=".4"/>
+            <polygon points="110,16 22,180 16,185 110,12" fill="rgba(255,240,150,.08)"/>
+            <!-- Bottom edge highlight -->
+            <line x1="16" y1="185" x2="204" y2="185" stroke="#ffe87a" stroke-width="2.5" opacity=".35"/>
+            <!-- Holes -->
+            <ellipse class="ch-hole" cx="82" cy="138" rx="16" ry="14" fill="url(#hole-g)"/>
+            <ellipse cx="82" cy="138" rx="11" ry="9" fill="#7a4e10" opacity=".85"/>
+            <ellipse cx="79" cy="135" rx="4" ry="3" fill="rgba(255,255,200,.12)"/>
+            <ellipse class="ch-hole" cx="142" cy="118" rx="13" ry="12" fill="url(#hole-g)"/>
+            <ellipse cx="142" cy="118" rx="8.5" ry="7.5" fill="#7a4e10" opacity=".85"/>
+            <ellipse cx="139" cy="115" rx="3" ry="2.5" fill="rgba(255,255,200,.12)"/>
+            <ellipse class="ch-hole" cx="108" cy="162" rx="10" ry="9" fill="url(#hole-g)"/>
+            <ellipse cx="108" cy="162" rx="6.5" ry="6" fill="#7a4e10" opacity=".8"/>
+            <ellipse class="ch-hole" cx="60" cy="162" rx="8" ry="7" fill="url(#hole-g)" opacity=".8"/>
+            <ellipse cx="60" cy="162" rx="5" ry="4.5" fill="#7a4e10" opacity=".75"/>
+            <ellipse class="ch-hole" cx="158" cy="155" rx="9" ry="8" fill="url(#hole-g)" opacity=".8"/>
+            <ellipse cx="158" cy="155" rx="5.5" ry="5" fill="#7a4e10" opacity=".8"/>
+            <ellipse class="ch-hole" cx="110" cy="82" rx="7" ry="6" fill="url(#hole-g)" opacity=".6"/>
+            <ellipse cx="110" cy="82" rx="4.5" ry="4" fill="#7a4e10" opacity=".7"/>
+            <!-- Drips at bottom -->
+            <path class="ch-drip" d="M 55 183 Q 52 195 56.5 202 Q 60 196 58 183 Z" fill="#f5b942" opacity=".85"/>
+            <path class="ch-drip" d="M 100 183 Q 97 198 101.5 205 Q 105 198 102 183 Z" fill="#ffe87a" opacity=".8"/>
+            <path class="ch-drip" d="M 150 183 Q 147 194 151.5 200 Q 155 194 152 183 Z" fill="#f5b942" opacity=".85"/>
+            <path class="ch-drip" d="M 77 183 Q 74.5 190 78 194 Q 81 190 79 183 Z" fill="#ffd070" opacity=".7"/>
+            <path class="ch-drip" d="M 128 183 Q 125.5 192 129 196 Q 132 192 130 183 Z" fill="#ffd070" opacity=".7"/>
+            <!-- Shine -->
+            <ellipse class="ch-shine" cx="78" cy="58" rx="22" ry="9" fill="white" opacity=".14" transform="rotate(-22,78,58)"/>
+            <ellipse cx="95" cy="46" rx="8" ry="3.5" fill="white" opacity=".1" transform="rotate(-22,95,46)"/>
+            <!-- Texture lines -->
+            <path d="M 70 100 Q 110 95 145 105" stroke="rgba(200,140,30,.2)" stroke-width="1" fill="none"/>
+            <path d="M 55 140 Q 110 133 162 143" stroke="rgba(200,140,30,.15)" stroke-width="1" fill="none"/>
+          </svg>
+        </div>
+        <div id="glow-ring"></div>
+      </div>
+
+      <div id="stats-row">
+        <div class="stat-pill">
+          <div class="sp-val" id="sp-click">1</div>
+          <div class="sp-lbl">per click</div>
+        </div>
+        <div class="stat-pill">
+          <div class="sp-val" id="sp-cps">0</div>
+          <div class="sp-lbl">per second</div>
+        </div>
+        <div class="stat-pill">
+          <div class="sp-val" id="sp-mult">×1</div>
+          <div class="sp-lbl">multiplier</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div id="right-panel">
+    <div id="prestige-bar">
+      <div id="pt">✨ PRESTIGE <span id="pt-r">Need 1B cheese</span></div>
+      <div id="pp-wrap"><div id="pp"></div></div>
+      <button id="prestige-btn" onclick="openPrestigeModal()" disabled>Age Your Cheese</button>
+      <div id="pinfo">Aged Cheese = permanent +5% production each</div>
+    </div>
+    <div id="rp-tabs">
+      <button class="rp-tab active" onclick="rpTab('stats',this)">📊 Stats</button>
+      <button class="rp-tab" onclick="rpTab('ach',this)">🏆 Ach</button>
+      <button class="rp-tab" onclick="rpTab('ms',this)">🎯 Goals</button>
+      <button class="rp-tab" onclick="rpTab('mut',this)">🧬 Rare</button>
+    </div>
+    <div id="rp-content">
+      <div class="rp-pane active" id="rp-stats">
+        <div class="sg" id="stats-cells"></div>
+        <div class="bdk">
+          <div class="bdk-hd">📈 CPS Breakdown</div>
+          <div id="bdk-list"></div>
+        </div>
+      </div>
+      <div class="rp-pane" id="rp-ach">
+        <div id="ach-grid"></div>
+      </div>
+      <div class="rp-pane" id="rp-ms">
+        <div id="milestones-list"></div>
+      </div>
+      <div class="rp-pane" id="rp-mut">
+        <div style="font-size:.62rem;color:var(--muted);margin-bottom:7px;line-height:1.5">
+          Rare cheese mutations can be unlocked and activated. Only one mutation active at a time.
+        </div>
+        <div class="mut-grid" id="mut-grid"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ============================================================
+//  CHEESE CLICKER — ULTIMATE ENGINE
+// ============================================================
+
+// ---- NUMBER FORMAT ----
+const SI = ['','K','M','B','T','Qa','Qi','Sx','Sp','Oc','No','Dc','Un','Du','Tr','Qa2'];
+function fmt(n){
+  if(isNaN(n)||!isFinite(n))return '0';
+  if(n<0)return '-'+fmt(-n);
+  if(n<1000)return Math.floor(n).toString();
+  const e=Math.floor(Math.log10(n)/3);
+  if(e>=SI.length)return n.toExponential(2).replace('e+','e');
+  const v=n/Math.pow(1000,e);
+  const s=v>=100?v.toFixed(1):v>=10?v.toFixed(2):v.toFixed(3);
+  return s.replace(/\.?0+$/,'')+SI[e];
+}
+function fmtD(n){return fmt(n)+'/s';}
+function fmtT(s){
+  s=Math.floor(s);
+  if(s<60)return s+'s';
+  if(s<3600)return Math.floor(s/60)+'m '+( s%60)+'s';
+  return Math.floor(s/3600)+'h '+Math.floor((s%3600)/60)+'m';
+}
+
+// ---- PRODUCERS CONFIG ----
+const PRODS=[
+  {id:'mice',    name:'Cheese Mice',      ico:'🐭',base:10,       cps:.1,     color:'#ffaa44',
+   desc:'Tiny mice who live inside your walls. They work tirelessly for cheese crumbs.',
+   flav:'Every squeak produces a fraction of a cheese.'},
+  {id:'farm',    name:'Cheese Farm',      ico:'🌾',base:100,      cps:1,      color:'#88cc44',
+   desc:'A pastoral farm where cheese grows naturally on the vine.',
+   flav:'Free-range cheese. Humanely harvested.'},
+  {id:'factory', name:'Cheese Factory',   ico:'🏭',base:1000,     cps:10,     color:'#8888ff',
+   desc:'An automated production facility running 24 hours a day.',
+   flav:'When artisan just isn\'t enough.'},
+  {id:'mine',    name:'Cheese Mine',      ico:'⛏️', base:10000,    cps:100,    color:'#ff8844',
+   desc:'Deep underground, ancient cheese deposits wait to be extracted.',
+   flav:'Fossilized brie from the Cretaceous period.'},
+  {id:'lab',     name:'Cheese Lab',       ico:'🔬',base:100000,   cps:1000,   color:'#44cccc',
+   desc:'Scientists engineer the most potent cheese compounds known to science.',
+   flav:'Patent-pending. FDA unapproved.'},
+  {id:'portal',  name:'Cheese Portal',    ico:'🌀',base:1000000,  cps:8000,   color:'#cc44ff',
+   desc:'A rift in space-time that streams cheese from dairy dimensions.',
+   flav:'Please don\'t ask what\'s on the other side.'},
+  {id:'elder',   name:'Elder God Dairy',  ico:'🐙',base:10000000, cps:50000,  color:'#ff4488',
+   desc:'An ancient entity of unfathomable cheese. It churns in its sleep.',
+   flav:'Ph\'nglui mglw\'nafh cheese R\'lyeh wgah\'nagl fhtagn.'},
+  {id:'dimension',name:'Cheese Dimension',ico:'🌌',base:100000000,cps:250000, color:'#44aaff',
+   desc:'An entire parallel dimension made entirely of cheese.',
+   flav:'Eincheese\'s Theory of Chelativity.'},
+  {id:'universe',name:'Cheese Universe', ico:'🪐',base:1e10,     cps:2000000,color:'#ffdd44',
+   desc:'A whole universe shaped like a cosmic wheel of cheese.',
+   flav:'The Big Melt happened 13.8 billion years ago.'},
+  {id:'godhood', name:'Cheese Godhood',   ico:'👁️', base:1e12,    cps:20000000,color:'#ffffff',
+   desc:'You have transcended. You ARE the cheese.',
+   flav:'Your tears are made of aged gouda.'},
+];
+
+// ---- UPGRADES CONFIG ----
+const UPGRADES=[
+  // Click upgrades
+  {id:'c1',name:'Better Grip',       ico:'🤌',cost:50,      tag:'click', mult:1,  add:1,  req:null,  desc:'+1 cheese per click. Simple, effective.'},
+  {id:'c2',name:'Power Slap',        ico:'💪',cost:300,     tag:'click', mult:1,  add:4,  req:'c1',  desc:'+4 click power. Really get in there.'},
+  {id:'c3',name:'Mega Palm',         ico:'🦾',cost:2000,    tag:'click', mult:1,  add:15, req:'c2',  desc:'+15 click power. You feel unstoppable.'},
+  {id:'c4',name:'Thunder Click',     ico:'⚡',cost:15000,   tag:'click', mult:1,  add:60, req:'c3',  desc:'+60 click power. Crackling with cheese energy.'},
+  {id:'c5',name:'Godly Touch',       ico:'✨',cost:100000,  tag:'click', mult:2,  add:0,  req:'c4',  desc:'Click power ×2. The cheese bends to your will.'},
+  {id:'c6',name:'Infinite Finger',   ico:'∞', cost:5000000, tag:'click', mult:5,  add:0,  req:'c5',  desc:'Click power ×5. Your finger moves through time.'},
+  {id:'c7',name:'Cheese God Click',  ico:'🌟',cost:5e8,     tag:'click', mult:10, add:0,  req:'c6',  desc:'Click power ×10. Legends whisper your name.'},
+  // Mice upgrades
+  {id:'m1',name:'Mouse Yoga',        ico:'🧘',cost:150,     tag:'mice',  pmult:2, req:null, desc:'Mice produce 2× CPS. Mindfulness boosts productivity.'},
+  {id:'m2',name:'Mouse Hats',        ico:'🎩',cost:800,     tag:'mice',  pmult:2, req:'m1', desc:'Mice with hats produce 2× more. Professional attire.'},
+  {id:'m3',name:'Mouse Olympics',    ico:'🏅',cost:4000,    tag:'mice',  pmult:3, req:'m2', desc:'Elite athletic mice. 3× CPS from mice.'},
+  // Farm upgrades
+  {id:'f1',name:'Artisan Soil',      ico:'🌱',cost:1000,    tag:'farm',  pmult:2, req:null, desc:'Farms 2× CPS. Locally sourced terroir.'},
+  {id:'f2',name:'Cheese Tractors',   ico:'🚜',cost:6000,    tag:'farm',  pmult:2, req:'f1', desc:'Farms 2× CPS again. Industrial cheeseiculture.'},
+  {id:'f3',name:'Enchanted Pastures',ico:'🌈',cost:40000,   tag:'farm',  pmult:3, req:'f2', desc:'Farms 3× CPS. Magical grass, magical cheese.'},
+  // Factory upgrades
+  {id:'fa1',name:'Assembly Line',    ico:'⚙️', cost:10000,   tag:'factory',pmult:2,req:null,desc:'Factories 2× CPS.'},
+  {id:'fa2',name:'Robot Workers',    ico:'🤖',cost:80000,   tag:'factory',pmult:2,req:'fa1',desc:'Robots double factory output.'},
+  {id:'fa3',name:'Quantum Conveyor', ico:'🔮',cost:600000,  tag:'factory',pmult:3,req:'fa2',desc:'Factories 3× CPS. Physics is optional.'},
+  // Mine upgrades
+  {id:'mi1',name:'Deep Drills',      ico:'🔩',cost:80000,   tag:'mine',  pmult:2, req:null, desc:'Mines 2× CPS. Deeper means cheesier.'},
+  {id:'mi2',name:'Seismic Blasting', ico:'💣',cost:700000,  tag:'mine',  pmult:2, req:'mi1',desc:'Controlled explosions. Mines 2× CPS again.'},
+  // Lab upgrades
+  {id:'la1',name:'Quantum Aging',    ico:'🧪',cost:800000,  tag:'lab',   pmult:2, req:null, desc:'Labs 2× CPS.'},
+  {id:'la2',name:'God Particle Whey',ico:'⚛️', cost:8000000, tag:'lab',   pmult:3, req:'la1',desc:'Labs 3× CPS. E=mc²heese.'},
+  // Global upgrades
+  {id:'g1',name:'Double Yield',      ico:'✌️', cost:100000,  tag:'global',gmult:1.5,req:null,desc:'All producers ×1.5 CPS. Efficiency synergy.'},
+  {id:'g2',name:'Triple Threat',     ico:'3️⃣', cost:1000000, tag:'global',gmult:2,  req:'g1', desc:'All producers ×2 CPS. The cheese singularity nears.'},
+  {id:'g3',name:'Cheese Singularity',ico:'♾️', cost:2e8,     tag:'global',gmult:5,  req:'g2', desc:'All producers ×5 CPS. You see the cheese in everything.'},
+  {id:'g4',name:'Infinite Dairy',    ico:'🌊',cost:5e10,     tag:'global',gmult:10, req:'g3', desc:'All producers ×10 CPS. It never stops.'},
+  // Combo upgrades
+  {id:'co1',name:'Combo Trainer',    ico:'🔥',cost:2000,    tag:'combo', cwin:500, req:null, desc:'Combo window +0.5s. More time to build streaks.'},
+  {id:'co2',name:'Streak Master',    ico:'💥',cost:20000,   tag:'combo', cbon:2,   req:'co1',desc:'Combo bonus ×2. Clicking feels incredible.'},
+  {id:'co3',name:'Frenzy Finger',    ico:'🌪️',cost:200000,  tag:'combo', cwin:1000,req:'co2',desc:'Combo window +1s extra. The cheese flows through you.'},
+  // Offline
+  {id:'o1',name:'Cheese Caves',      ico:'🕳️', cost:50000,   tag:'offline',omult:2,req:null,  desc:'Offline production ×2.'},
+  {id:'o2',name:'Temporal Vault',    ico:'⏰',cost:2000000, tag:'offline',omult:3, req:'o1', desc:'Offline production ×3 additionally.'},
+  // Golden
+  {id:'gl1',name:'Golden Compass',   ico:'🧭',cost:500000,  tag:'golden',golmult:2,req:null, desc:'Golden cheese value ×2.'},
+  {id:'gl2',name:'Midas Mold',       ico:'👑',cost:5e7,     tag:'golden',golmult:3,req:'gl1',desc:'Golden cheese value ×3. Everything you touch turns to cheese.'},
+  // Click CPS synergy
+  {id:'cs1',name:'Click Echoes',     ico:'🔊',cost:1000000, tag:'cpsclick',ccrat:.01,req:null,desc:'Each click adds 1% of CPS as bonus cheese.'},
+  {id:'cs2',name:'Resonance',        ico:'📡',cost:50000000,tag:'cpsclick',ccrat:.05,req:'cs1',desc:'Clicks gain 5% of CPS additionally.'},
+];
+
+// ---- ACHIEVEMENTS ----
+const ACHS=[
+  {id:'first',   ico:'🧀',name:'First Cheese',     desc:'Click for the first time',           check:s=>s.clicks>=1},
+  {id:'c100',    ico:'👆',name:'Click Addict',      desc:'Click 100 times',                    check:s=>s.clicks>=100},
+  {id:'c1000',   ico:'🖱️', name:'Clicker Maniac',   desc:'Click 1,000 times',                  check:s=>s.clicks>=1000},
+  {id:'c10k',    ico:'💫',name:'Clicking Legend',   desc:'Click 10,000 times',                 check:s=>s.clicks>=10000},
+  {id:'thou',    ico:'💰',name:'Thousandaire',      desc:'Accumulate 1,000 cheese',            check:s=>s.totalCh>=1000},
+  {id:'mil',     ico:'💎',name:'Millionaire',       desc:'Accumulate 1,000,000 cheese',        check:s=>s.totalCh>=1e6},
+  {id:'bil',     ico:'👑',name:'Billionaire',       desc:'Accumulate 1,000,000,000 cheese',    check:s=>s.totalCh>=1e9},
+  {id:'tril',    ico:'🌍',name:'Trillionaire',      desc:'Accumulate 1 Trillion cheese',       check:s=>s.totalCh>=1e12},
+  {id:'quad',    ico:'🌌',name:'Quadrillionaire',   desc:'Accumulate 1 Quadrillion cheese',    check:s=>s.totalCh>=1e15},
+  {id:'p1',      ico:'🏗️', name:'First Producer',   desc:'Buy any producer',                   check:s=>totP(s)>=1},
+  {id:'p50',     ico:'🏙️', name:'Cheese Town',       desc:'Own 50 producers total',             check:s=>totP(s)>=50},
+  {id:'p200',    ico:'🌆',name:'Cheese City',       desc:'Own 200 producers total',            check:s=>totP(s)>=200},
+  {id:'p500',    ico:'🌃',name:'Cheese Metropolis', desc:'Own 500 producers total',            check:s=>totP(s)>=500},
+  {id:'gold1',   ico:'⭐',name:'Gold Rush',         desc:'Catch a golden cheese',              check:s=>s.goldenCaught>=1},
+  {id:'gold10',  ico:'🌟',name:'Golden Hunter',     desc:'Catch 10 golden cheeses',            check:s=>s.goldenCaught>=10},
+  {id:'gold50',  ico:'💫',name:'Gold Baron',        desc:'Catch 50 golden cheeses',            check:s=>s.goldenCaught>=50},
+  {id:'combo10', ico:'🔥',name:'Combo Starter',     desc:'Reach a 10× combo',                  check:s=>s.bestCombo>=10},
+  {id:'combo25', ico:'💥',name:'Combo God',         desc:'Reach a 25× combo',                  check:s=>s.bestCombo>=25},
+  {id:'combo50', ico:'🌪️', name:'Combo Deity',       desc:'Reach a 50× combo',                  check:s=>s.bestCombo>=50},
+  {id:'pres1',   ico:'✨',name:'Cheese Sage',       desc:'Prestige once',                      check:s=>s.prestigeCount>=1},
+  {id:'pres5',   ico:'🔮',name:'Cheese Master',     desc:'Prestige 5 times',                   check:s=>s.prestigeCount>=5},
+  {id:'mice100', ico:'🐭',name:'Mouse Army',        desc:'Own 100 cheese mice',                check:s=>(s.prods.mice||0)>=100},
+  {id:'all7',    ico:'🏆',name:'Full Lineup',       desc:'Own at least one of every producer', check:s=>PRODS.every(p=>(s.prods[p.id]||0)>0)},
+  {id:'cps1k',   ico:'⚡',name:'CPS Beast',         desc:'Reach 1,000 CPS',                    check:s=>s.cps>=1000},
+  {id:'cps1m',   ico:'🌊',name:'CPS Tsunami',       desc:'Reach 1,000,000 CPS',                check:s=>s.cps>=1e6},
+  {id:'mold1',   ico:'🟢',name:'Mold Survivor',     desc:'Survive a mold infection',           check:s=>s.moldSurvived},
+  {id:'fren1',   ico:'🌋',name:'Frenzied',          desc:'Trigger a cheese frenzy',            check:s=>s.frenzies>=1},
+  {id:'upg10',   ico:'🔧',name:'Upgrade Hoarder',   desc:'Purchase 10 upgrades',               check:s=>Object.keys(s.upgrades).length>=10},
+  {id:'mut1',    ico:'🧬',name:'Mutant Cheese',     desc:'Activate a cheese mutation',         check:s=>s.activeMutation!==null},
+  {id:'offline', ico:'💤',name:'Lazy Dairyman',     desc:'Come back after 1 hour offline',     check:s=>s.longestOffline>=3600},
+  {id:'playhour',ico:'⏱️', name:'Dedicated Cheeser', desc:'Play for 1 hour total',              check:s=>s.timePlayed>=3600},
+];
+
+// ---- MILESTONES ----
+const MILESTONES=[
+  {id:'ms1', ico:'🐭',name:'First Mouse',       desc:'Buy your first Cheese Mouse',      goal:1,  val:s=>(s.prods.mice||0)},
+  {id:'ms2', ico:'🌾',name:'First Farm',         desc:'Buy your first Cheese Farm',       goal:1,  val:s=>(s.prods.farm||0)},
+  {id:'ms3', ico:'💰',name:'Millionaire',        desc:'Earn 1 million total cheese',      goal:1e6,val:s=>s.totalCh,fmt:fmt},
+  {id:'ms4', ico:'👑',name:'Billionaire',        desc:'Earn 1 billion total cheese',      goal:1e9,val:s=>s.totalCh,fmt:fmt},
+  {id:'ms5', ico:'⚡',name:'1k CPS',             desc:'Reach 1,000 cheese per second',    goal:1000,val:s=>s.cps,fmt:fmt},
+  {id:'ms6', ico:'🔥',name:'10 Combo',           desc:'Reach a 10× click combo',          goal:10,  val:s=>s.bestCombo},
+  {id:'ms7', ico:'🏭',name:'Industrialist',       desc:'Own 10 factories',                 goal:10,  val:s=>(s.prods.factory||0)},
+  {id:'ms8', ico:'⛏️', name:'Miner Cheese',       desc:'Own 5 cheese mines',               goal:5,   val:s=>(s.prods.mine||0)},
+  {id:'ms9', ico:'⭐',name:'Golden Hoarder',     desc:'Catch 5 golden cheeses',            goal:5,   val:s=>s.goldenCaught},
+  {id:'ms10',ico:'✨',name:'Aged One',           desc:'Prestige for the first time',       goal:1,   val:s=>s.prestigeCount},
+  {id:'ms11',ico:'🌌',name:'Dimension Opener',   desc:'Open a cheese dimension',           goal:1,   val:s=>(s.prods.dimension||0)},
+  {id:'ms12',ico:'🌊',name:'CPS Flood',          desc:'Reach 1 million CPS',              goal:1e6, val:s=>s.cps,fmt:fmt},
+];
+
+// ---- MUTATIONS ----
+const MUTATIONS=[
+  {id:'blue',  ico:'🔵',name:'Blue Cheese',  eff:'Click power ×3',    color:'#4ab8ff',
+   cost:100000,  locked:true,  unlockReq:s=>(s.totalCh>=100000), applyFn:()=>{mutClickMult=3},removeFn:()=>{mutClickMult=1}},
+  {id:'aged',  ico:'🟤',name:'Aged Gouda',   eff:'CPS ×1.5 but no clicks',color:'#c87040',
+   cost:500000,  locked:true,  unlockReq:s=>(s.totalCh>=500000), applyFn:()=>{mutCPSMult=1.5;mutNoClick=true},removeFn:()=>{mutCPSMult=1;mutNoClick=false}},
+  {id:'ghost', ico:'👻',name:'Ghost Cheese', eff:'Double golden cheese',color:'#aaaaff',
+   cost:1000000, locked:true,  unlockReq:s=>(s.goldenCaught>=5), applyFn:()=>{mutGoldenMult=2},removeFn:()=>{mutGoldenMult=1}},
+  {id:'fire',  ico:'🔥',name:'Flaming Brie', eff:'CPS ×2, halves click',color:'#ff7700',
+   cost:5000000, locked:true,  unlockReq:s=>(s.cps>=1000), applyFn:()=>{mutCPSMult=2;mutClickMult=0.5},removeFn:()=>{mutCPSMult=1;mutClickMult=1}},
+  {id:'cosmic',ico:'🌌',name:'Cosmic Cheddar',eff:'All ×3, 90s cooldown',color:'#ffdd44',
+   cost:5e7,     locked:true,  unlockReq:s=>(s.prods.dimension||0)>=1, applyFn:()=>{mutCPSMult=3;mutClickMult=3},removeFn:()=>{mutCPSMult=1;mutClickMult=1}},
+  {id:'dark',  ico:'🖤',name:'Dark Matter',  eff:'Offline ×5 only',    color:'#666688',
+   cost:1e8,     locked:true,  unlockReq:s=>(s.prestigeCount>=1), applyFn:()=>{mutOfflineMult=5},removeFn:()=>{mutOfflineMult=1}},
+];
+
+// ---- GAME STATE ----
+let G={
+  cheese:0, totalCh:0, clicks:0, goldenCaught:0,
+  bestCombo:0, prestigeCount:0, agedCheese:0,
+  prestigeMult:1, frenzies:0, moldSurvived:false,
+  timePlayed:0, longestOffline:0,
+  clickPower:1, cps:0,
+  prods:{}, upgrades:{}, activeMutation:null,
+  frenzyActive:false,frenzyEnd:0,
+  moldActive:false,moldEnd:0,
+};
+
+// ---- DYNAMIC MODS ----
+let prodMults={};PRODS.forEach(p=>prodMults[p.id]=1);
+let globalMult=1;
+let comboWindow=1000, comboBonusMult=1;
+let offlineMult=1, goldenMult=1;
+let cpsClickRatio=0;
+let mutClickMult=1, mutCPSMult=1, mutNoClick=false, mutGoldenMult=1, mutOfflineMult=1;
+let buyMode=1;
+let unlocked=new Set();
+
+// ---- COMBO STATE ----
+let combo=0,comboTimer=null,comboExpAt=0;
+
+// ---- GOLDEN ----
+let goldenTimeout=null;
+let goldenOnScreen=false;
+
+// ---- TICK ----
+let lastTick=Date.now();
+
+// ============================================================
+//  CORE MATH
+// ============================================================
+function totP(s){return Object.values(s.prods).reduce((a,b)=>a+b,0);}
+function totalProducers(){return totP(G);}
+
+function prodCost(prod,n){
+  const owned=G.prods[prod.id]||0;
+  if(n===1) return Math.ceil(prod.base*Math.pow(1.15,owned));
+  // Cost for buying N
+  let total=0;
+  for(let i=0;i<n;i++) total+=Math.ceil(prod.base*Math.pow(1.15,owned+i));
+  return total;
+}
+function maxBuy(prod){
+  let n=0,total=0,owned=G.prods[prod.id]||0;
+  while(true){
+    total+=Math.ceil(prod.base*Math.pow(1.15,owned+n));
+    if(total>G.cheese) break;
+    n++;
+  }
+  return n;
+}
+
+function recalcCPS(){
+  let cps=0;
+  PRODS.forEach(p=>{
+    const owned=G.prods[p.id]||0;
+    if(owned>0) cps+=owned*p.cps*(prodMults[p.id]||1)*globalMult;
+  });
+  cps*=G.prestigeMult;
+  cps*=mutCPSMult;
+  if(G.frenzyActive&&Date.now()<G.frenzyEnd) cps*=3;
+  if(G.moldActive&&Date.now()<G.moldEnd) cps*=0.5;
+  G.cps=cps;
+  return cps;
+}
+
+function effectiveClickPower(){
+  let cp=G.clickPower*G.prestigeMult*mutClickMult;
+  cp+=G.cps*cpsClickRatio;
+  return cp;
+}
+
+// ============================================================
+//  TICK
+// ============================================================
+function gameTick(){
+  const now=Date.now();
+  const dt=Math.min((now-lastTick)/1000,0.5);
+  lastTick=now;
+  G.timePlayed+=dt;
+
+  // Event expiry
+  if(G.frenzyActive&&now>=G.frenzyEnd){
+    G.frenzyActive=false;
+    document.getElementById('svign').className='';
+    recalcCPS(); updateEventStrip();
+    showNotif('Frenzy ended! CPS returned to normal.','bad');
+  }
+  if(G.moldActive&&now>=G.moldEnd){
+    G.moldActive=false;G.moldSurvived=true;
+    document.getElementById('svign').className='';
+    recalcCPS(); updateEventStrip();
+    showNotif('🌿 Mold cleared! Production restored.');
+    checkAchs();
+  }
+
+  // Combo expiry
+  if(combo>0&&now>=comboExpAt) endCombo();
+
+  // Cheese income
+  let bonusCPS=0;
+  if(combo>0&&now<comboExpAt) bonusCPS=G.cps*(combo*0.05*comboBonusMult);
+  const earned=(G.cps+bonusCPS)*dt;
+  G.cheese+=earned; G.totalCh+=earned;
+}
+
+// ============================================================
+//  CLICK HANDLER
+// ============================================================
+function handleClick(e){
+  e.preventDefault();
+  if(mutNoClick) return;
+  const now=Date.now();
+
+  // Combo
+  if(comboTimer) clearTimeout(comboTimer);
+  combo++;
+  comboExpAt=now+comboWindow;
+  if(combo>G.bestCombo) G.bestCombo=combo;
+  comboTimer=setTimeout(endCombo,comboWindow+60);
+
+  const cp=effectiveClickPower();
+  const cm=1+combo*0.05*comboBonusMult;
+  const earned=cp*cm;
+  G.cheese+=earned; G.totalCh+=earned; G.clicks++;
+
+  // VFX
+  const rect=document.getElementById('stage').getBoundingClientRect();
+  const cx=e.touches?e.touches[0].clientX:e.clientX;
+  const cy=e.touches?e.touches[0].clientY:e.clientY;
+  spawnFXText(cx-rect.left,cy-rect.top,'+'+fmt(earned),combo>15?'#ff9900':'#f5b942',combo);
+  addClickParticle(cx-rect.left,cy-rect.top);
+  triggerRipple(cx-rect.left,cy-rect.top);
+
+  const wrap=document.getElementById('cheese-wrap');
+  wrap.classList.remove('clicking');
+  void wrap.offsetWidth;
+  wrap.classList.add('clicking');
+  setTimeout(()=>wrap.classList.remove('clicking'),150);
+
+  updateComboUI();
+
+  if(combo>0&&combo%15===0) screenFlash('flash-orange');
+  if(combo===30&&!G.frenzyActive) triggerFrenzy();
+  if(combo>=10) document.getElementById('cheese-wrap').classList.add('combo-hi');
+  else document.getElementById('cheese-wrap').classList.remove('combo-hi');
+
+  checkAchs();
+  checkMilestones();
+}
+
+function endCombo(){
+  if(combo>0&&combo>=10) document.getElementById('cheese-wrap').classList.remove('combo-hi');
+  combo=0; comboTimer=null;
+  updateComboUI();
+}
+
+function updateComboUI(){
+  const hud=document.getElementById('combo-hud');
+  if(combo>=2){
+    hud.classList.add('combo-on');
+    document.getElementById('combo-x').textContent='×'+combo;
+    // Bar countdown
+    const rem=comboExpAt-Date.now();
+    document.getElementById('combo-bfill').style.transform=`scaleX(${Math.max(0,rem/comboWindow)})`;
+  } else {
+    hud.classList.remove('combo-on');
+  }
+}
+
+// ============================================================
+//  PRODUCERS & UPGRADES
+// ============================================================
+function buyProducer(id){
+  const prod=PRODS.find(p=>p.id===id);
+  if(!prod) return;
+  let n=buyMode===-1?maxBuy(prod):buyMode;
+  if(n<=0) return;
+  const cost=prodCost(prod,n);
+  if(G.cheese<cost) return;
+  G.cheese-=cost;
+  G.prods[id]=(G.prods[id]||0)+n;
+  recalcCPS();
+  renderShop();
+  updateUI();
+  checkAchs();
+  checkMilestones();
+  if(n===1) showNotif(`Bought ${prod.ico} ${prod.name}!`);
+  else showNotif(`Bought ${n}× ${prod.ico} ${prod.name}!`);
+}
+
+function buyUpgrade(id){
+  const upg=UPGRADES.find(u=>u.id===id);
+  if(!upg||G.upgrades[id]||G.cheese<upg.cost) return;
+  // Check req
+  if(upg.req&&!G.upgrades[upg.req]) return;
+  G.cheese-=upg.cost;
+  G.upgrades[id]=true;
+  applyUpgrade(upg);
+  recalcCPS();
+  renderShop();
+  updateUI();
+  checkAchs();
+  showNotif(`⬆️ ${upg.name}!`,'purple');
+}
+
+function applyUpgrade(upg){
+  if(upg.tag==='click'){
+    if(upg.add) G.clickPower+=upg.add;
+    if(upg.mult&&upg.mult>1) G.clickPower*=upg.mult;
+  }
+  if(upg.tag==='global'&&upg.gmult) globalMult*=upg.gmult;
+  if(upg.pmult&&upg.tag!=='global'){
+    prodMults[upg.tag]=(prodMults[upg.tag]||1)*upg.pmult;
+  }
+  if(upg.tag==='combo'){
+    if(upg.cwin) comboWindow+=upg.cwin;
+    if(upg.cbon) comboBonusMult*=upg.cbon;
+  }
+  if(upg.tag==='offline'&&upg.omult) offlineMult*=upg.omult;
+  if(upg.tag==='golden'&&upg.golmult) goldenMult*=upg.golmult;
+  if(upg.tag==='cpsclick'&&upg.ccrat) cpsClickRatio+=upg.ccrat;
+}
+
+// Reapply all upgrades from scratch (for prestige/load)
+function reapplyAllUpgrades(){
+  G.clickPower=1;
+  globalMult=1;
+  PRODS.forEach(p=>prodMults[p.id]=1);
+  comboWindow=1000; comboBonusMult=1;
+  offlineMult=1; goldenMult=1; cpsClickRatio=0;
+  UPGRADES.forEach(u=>{ if(G.upgrades[u.id]) applyUpgrade(u); });
+}
+
+// ============================================================
+//  MUTATIONS
+// ============================================================
+function activateMutation(id){
+  const mut=MUTATIONS.find(m=>m.id===id);
+  if(!mut||mut.locked) return;
+  if(G.cheese<mut.cost) return;
+  // Deactivate current
+  if(G.activeMutation){
+    const prev=MUTATIONS.find(m=>m.id===G.activeMutation);
+    if(prev) prev.removeFn();
+  }
+  if(G.activeMutation===id){
+    G.activeMutation=null;
+    showNotif('Mutation deactivated.','bad');
+  } else {
+    G.cheese-=mut.cost;
+    G.activeMutation=id;
+    mut.applyFn();
+    showNotif(`🧬 ${mut.name} activated!`,'blue');
+    checkAchs();
+  }
+  recalcCPS();
+  renderMutations();
+  updateUI();
+}
+
+function reapplyMutation(){
+  mutClickMult=1; mutCPSMult=1; mutNoClick=false; mutGoldenMult=1; mutOfflineMult=1;
+  if(G.activeMutation){
+    const mut=MUTATIONS.find(m=>m.id===G.activeMutation);
+    if(mut) mut.applyFn();
+  }
+}
+
+// ============================================================
+//  GOLDEN CHEESE
+// ============================================================
+function scheduleGolden(){
+  if(goldenTimeout) clearTimeout(goldenTimeout);
+  const d=15000+Math.random()*45000;
+  goldenTimeout=setTimeout(spawnGolden,d);
+}
+
+function spawnGolden(){
+  if(goldenOnScreen){scheduleGolden();return;}
+  goldenOnScreen=true;
+  const stage=document.getElementById('stage');
+  const w=stage.clientWidth, h=stage.clientHeight;
+  const sz=52;
+  const el=document.createElement('div');
+  el.className='golden-orb';
+  el.style.left=Math.floor(40+Math.random()*(w-sz-80))+'px';
+  el.style.top= Math.floor(60+Math.random()*(h-sz-120))+'px';
+  el.innerHTML=`<svg width="${sz}" height="${sz}" viewBox="0 0 52 52">
+    <defs><radialGradient id="gg" cx="40%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#fff87a"/><stop offset="60%" stop-color="#ffd700"/>
+      <stop offset="100%" stop-color="#cc9900"/></radialGradient></defs>
+    <circle cx="26" cy="26" r="24" fill="url(#gg)" stroke="#ffe44a" stroke-width="2"/>
+    <ellipse cx="20" cy="18" rx="7" ry="4" fill="white" opacity=".3" transform="rotate(-20,20,18)"/>
+    <text x="26" y="34" text-anchor="middle" font-size="22">⭐</text>
+  </svg>`;
+  stage.appendChild(el);
+  const lifeT=setTimeout(()=>{
+    if(el.parentNode){el.remove();goldenOnScreen=false;scheduleGolden();}
+  },7000);
+  el.addEventListener('mousedown',()=>{
+    clearTimeout(lifeT);
+    G.goldenCaught++;
+    const bonus=Math.max(1000,Math.floor(G.cps*45*goldenMult*mutGoldenMult));
+    G.cheese+=bonus; G.totalCh+=bonus;
+    el.remove(); goldenOnScreen=false;
+    showNotif(`⭐ Golden Cheese! +${fmt(bonus)} cheese!`);
+    screenFlash('flash-gold');
+    updateUI(); checkAchs();
+    scheduleGolden();
+  });
+}
+
+// ============================================================
+//  EVENTS
+// ============================================================
+function triggerFrenzy(){
+  if(G.frenzyActive) return;
+  G.frenzyActive=true;
+  G.frenzyEnd=Date.now()+30000;
+  G.frenzies++;
+  document.getElementById('svign').className='fren';
+  recalcCPS();
+  updateEventStrip();
+  screenFlash('flash-orange');
+  showBanner('🔥 CHEESE FRENZY! ×3 CPS for 30 seconds!');
+  showNotif('🔥 COMBO FRENZY! 3× CPS activated!','green');
+  checkAchs();
+}
+
+function scheduleMold(){
+  const d=90000+Math.random()*150000;
+  setTimeout(()=>{
+    if(totalProducers()>=3){
+      triggerMold();
+    }
+    scheduleMold();
+  },d);
+}
+
+function triggerMold(){
+  if(G.moldActive||G.frenzyActive) return;
+  G.moldActive=true;
+  G.moldEnd=Date.now()+20000;
+  document.getElementById('svign').className='mold';
+  recalcCPS();
+  updateEventStrip();
+  showBanner('🟢 MOLD INFECTION! CPS halved for 20s!');
+  showNotif('🟢 Mold attack! CPS halved for 20s.','bad');
+}
+
+function updateEventStrip(){
+  const strip=document.getElementById('event-strip');
+  strip.innerHTML='';
+  const now=Date.now();
+  if(G.frenzyActive&&now<G.frenzyEnd){
+    const rem=Math.ceil((G.frenzyEnd-now)/1000);
+    const b=document.createElement('div');
+    b.className='ev-badge frenzy';
+    b.innerHTML=`🔥 FRENZY <span class="ev-t">${rem}s</span>`;
+    strip.appendChild(b);
+  }
+  if(G.moldActive&&now<G.moldEnd){
+    const rem=Math.ceil((G.moldEnd-now)/1000);
+    const b=document.createElement('div');
+    b.className='ev-badge mold';
+    b.innerHTML=`🟢 MOLD <span class="ev-t">${rem}s</span>`;
+    strip.appendChild(b);
+  }
+}
+
+// ============================================================
+//  PRESTIGE
+// ============================================================
+function openPrestigeModal(){
+  if(G.cheese<1e9) return;
+  const ac=Math.floor(G.cheese/1e9);
+  document.getElementById('modal-title').textContent='✨ Prestige?';
+  document.getElementById('modal-body').innerHTML=
+    `Reset all progress for <strong style="color:var(--purple);font-size:1.2em">${ac} Aged Cheese</strong>.<br><br>`+
+    `Each Aged Cheese = +5% permanent production multiplier.<br>`+
+    `Current multiplier: ×${G.prestigeMult.toFixed(2)}<br>`+
+    `New multiplier: ×${(1+(G.agedCheese+ac)*0.05).toFixed(2)}<br><br>`+
+    `<em style="color:var(--muted);font-size:.8em">All cheese, producers and upgrades will be reset. Your Aged Cheese and stats remain.</em>`;
+  document.getElementById('modal-conf').onclick=()=>doPrestige(ac);
+  document.getElementById('modal-canc').onclick=closeModal;
+  document.getElementById('modal-bg').classList.add('open');
+}
+
+function closeModal(){ document.getElementById('modal-bg').classList.remove('open'); }
+
+function doPrestige(ac){
+  G.agedCheese+=ac;
+  G.prestigeCount++;
+  G.prestigeMult=1+G.agedCheese*0.05;
+  G.cheese=0; G.totalCh=0; G.clicks=0;
+  G.prods={}; G.upgrades={};
+  G.clickPower=1; G.cps=0;
+  G.frenzyActive=false; G.moldActive=false;
+  // Reset mods
+  reapplyAllUpgrades();
+  reapplyMutation();
+  recalcCPS();
+  closeModal();
+  renderShop(); renderAchs(); renderMilestones(); renderMutations();
+  updateUI();
+  showNotif(`✨ Prestige! You now have ${G.agedCheese} Aged Cheese. Mult: ×${G.prestigeMult.toFixed(2)}`,'purple');
+  screenFlash('flash-purple');
+}
+
+// ============================================================
+//  ACHIEVEMENTS
+// ============================================================
+function checkAchs(){
+  let changed=false;
+  ACHS.forEach(a=>{
+    if(!unlocked.has(a.id)&&a.check(G)){
+      unlocked.add(a.id);
+      showNotif(`🏆 ${a.name}!`);
+      changed=true;
+    }
+  });
+  if(changed) renderAchs();
+}
+
+// ============================================================
+//  MILESTONES
+// ============================================================
+let completedMs=new Set();
+function checkMilestones(){
+  let changed=false;
+  MILESTONES.forEach(m=>{
+    if(!completedMs.has(m.id)&&m.val(G)>=m.goal){
+      completedMs.add(m.id);
+      showMsPopup(m.ico+' '+m.name);
+      changed=true;
+    }
+  });
+  if(changed) renderMilestones();
+}
+
+function showMsPopup(txt){
+  const el=document.getElementById('ms-popup');
+  el.textContent='🎯 Milestone: '+txt;
+  el.style.display='block';
+  void el.offsetWidth;
+  setTimeout(()=>el.style.display='none',3200);
+}
+
+// ============================================================
+//  RENDER: SHOP
+// ============================================================
+function renderShop(){
+  const list=document.getElementById('producers-list');
+  const mode=buyMode===-1?'Max':('×'+buyMode);
+  list.innerHTML='';
+  PRODS.forEach(prod=>{
+    const owned=G.prods[prod.id]||0;
+    const n=buyMode===-1?Math.max(1,maxBuy(prod)):buyMode;
+    const cost=prodCost(prod,n);
+    const canAfford=G.cheese>=cost&&(buyMode===-1?maxBuy(prod)>0:true);
+    const cpsEach=prod.cps*(prodMults[prod.id]||1)*globalMult*G.prestigeMult*mutCPSMult;
+    const totalCPS=owned*cpsEach;
+    // Milestones hint
+    const nextMs=[10,25,50,100,200,500].find(m=>m>owned);
+    const card=document.createElement('div');
+    card.className='prod-card has-tt'+(canAfford?' can-afford':'')+(owned===0?' locked':'');
+    card.innerHTML=`
+      <div class="prod-icon">${prod.ico}</div>
+      <div class="prod-info">
+        <div class="prod-name">${prod.name}</div>
+        <div class="prod-cps-line">${owned>0?fmtD(totalCPS)+' total':fmtD(cpsEach)+' each'}</div>
+        <div class="prod-cost-line">🧀 ${fmt(cost)} ${buyMode!==1?mode:''}</div>
+      </div>
+      <div class="prod-owned">${owned}</div>
+      <div class="tt">
+        <strong>${prod.ico} ${prod.name}</strong>
+        ${prod.desc}<br>
+        <span class="tt-cps">Each: ${fmtD(cpsEach)} | Owned: ${owned} | Total: ${fmtD(totalCPS)}</span>
+        <div class="tt-desc">"${prod.flav}"</div>
+        ${nextMs?`<div class="tt-desc" style="color:var(--amber2)">Next milestone: ${nextMs} owned</div>`:''}
+      </div>
+    `;
+    card.onclick=()=>buyProducer(prod.id);
+    list.appendChild(card);
+  });
+
+  // Upgrades
+  const grid=document.getElementById('upg-grid');
+  grid.innerHTML='';
+  UPGRADES.forEach(upg=>{
+    const purchased=!!G.upgrades[upg.id];
+    const reqMet=!upg.req||!!G.upgrades[upg.req];
+    if(!reqMet&&!purchased) return;
+    const canAfford=G.cheese>=upg.cost;
+    const card=document.createElement('div');
+    card.className='upg-card has-tt'+(purchased?' purchased':(canAfford?' can-afford':''));
+    card.innerHTML=`
+      <div class="upg-chk">✓</div>
+      <div class="upg-icon">${upg.ico}</div>
+      <div class="upg-name">${upg.name}</div>
+      <div class="upg-cost">${purchased?'Purchased':'🧀 '+fmt(upg.cost)}</div>
+      <div class="tt"><strong>${upg.ico} ${upg.name}</strong>${upg.desc}</div>
+    `;
+    if(!purchased) card.onclick=()=>buyUpgrade(upg.id);
+    grid.appendChild(card);
+  });
+}
+
+// ============================================================
+//  RENDER: ACHIEVEMENTS
+// ============================================================
+function renderAchs(){
+  const grid=document.getElementById('ach-grid');
+  grid.innerHTML='';
+  ACHS.forEach(a=>{
+    const unl=unlocked.has(a.id);
+    const el=document.createElement('div');
+    el.className='ach '+(unl?'unl':'lck');
+    el.innerHTML=`
+      <div class="ach-ico">${a.ico}</div>
+      <div class="ach-nm">${a.name}</div>
+      <div class="ach-tt"><strong>${a.name}</strong>${a.desc}</div>
+    `;
+    grid.appendChild(el);
+  });
+}
+
+// ============================================================
+//  RENDER: MILESTONES
+// ============================================================
+function renderMilestones(){
+  const list=document.getElementById('milestones-list');
+  list.innerHTML='';
+  MILESTONES.forEach(m=>{
+    const done=completedMs.has(m.id);
+    const cur=Math.min(m.val(G),m.goal);
+    const pct=Math.min(100,(cur/m.goal)*100);
+    const fv=m.fmt?m.fmt(cur):cur;
+    const fg=m.fmt?m.fmt(m.goal):m.goal;
+    const el=document.createElement('div');
+    el.className='ms-item'+(done?' done':'');
+    el.innerHTML=`
+      <div class="ms-ico">${m.ico}</div>
+      <div class="ms-txt">${m.name}<small>${m.desc}</small>
+        <div class="ms-bar-wrap"><div class="ms-bar" style="width:${pct}%"></div></div>
+        <small style="color:var(--muted)">${fv}/${fg}</small>
+      </div>
+      <div class="ms-chk">${done?'✓':''}</div>
+    `;
+    list.appendChild(el);
+  });
+}
+
+// ============================================================
+//  RENDER: MUTATIONS
+// ============================================================
+function renderMutations(){
+  // Update unlock status
+  MUTATIONS.forEach(m=>{ if(m.unlockReq(G)) m.locked=false; });
+  const grid=document.getElementById('mut-grid');
+  grid.innerHTML='';
+  MUTATIONS.forEach(mut=>{
+    const active=G.activeMutation===mut.id;
+    const el=document.createElement('div');
+    el.className='mut-card'+(mut.locked?' locked':'')+(active?' active':'');
+    el.style.borderColor=active?mut.color:'';
+    el.style.boxShadow=active?`0 0 12px ${mut.color}44`:'';
+    el.innerHTML=`
+      ${active?'<div class="mut-act-badge">ACTIVE</div>':''}
+      <div class="mut-ico">${mut.ico}</div>
+      <div class="mut-nm" style="color:${active?mut.color:'var(--cream)'}">${mut.name}</div>
+      <div class="mut-eff">${mut.eff}</div>
+      <div class="mut-cost">${mut.locked?'🔒 Locked':active?'Click to deactivate':'🧀 '+fmt(mut.cost)}</div>
+    `;
+    if(!mut.locked) el.onclick=()=>activateMutation(mut.id);
+    grid.appendChild(el);
+  });
+}
+
+// ============================================================
+//  UPDATE UI
+// ============================================================
+function updateUI(){
+  // Main counter
+  document.getElementById('main-count').textContent=fmt(G.cheese);
+  document.getElementById('sub-count').textContent='cheese | Total: '+fmt(G.totalCh);
+  document.getElementById('cps-count').textContent=fmtD(G.cps)+' (×'+fmt(G.prestigeMult)+' prestige)';
+  // Pills
+  document.getElementById('sp-click').textContent=fmt(effectiveClickPower());
+  document.getElementById('sp-cps').textContent=fmt(G.cps);
+  document.getElementById('sp-mult').textContent='×'+fmt(G.prestigeMult);
+  // Aged
+  document.getElementById('aged-val').textContent=G.agedCheese;
+  // Prestige bar
+  const pPct=Math.min(100,Math.log10(Math.max(1,G.cheese))/Math.log10(1e9)*100);
+  document.getElementById('pp').style.width=pPct+'%';
+  const prestBtn=document.getElementById('prestige-btn');
+  prestBtn.disabled=G.cheese<1e9;
+  document.getElementById('pt-r').textContent=G.cheese>=1e9?
+    `+${Math.floor(G.cheese/1e9)} AC ready!`:`${fmt(1e9-G.cheese)} more`;
+  document.getElementById('pinfo').textContent=G.cheese>=1e9?
+    `Click to gain ${Math.floor(G.cheese/1e9)} Aged Cheese (+${(Math.floor(G.cheese/1e9)*5).toFixed(0)}% mult)`:
+    `${fmt(1e9)} total cheese needed to prestige`;
+
+  // Stats cells
+  const sc=document.getElementById('stats-cells');
+  const cells=[
+    ['totalCh','Total Cheese',fmt(G.totalCh)],
+    ['clicks','Clicks',fmt(G.clicks)],
+    ['time','Time Played',fmtT(G.timePlayed)],
+    ['golden','Golden Caught',G.goldenCaught],
+    ['combo','Best Combo','×'+G.bestCombo],
+    ['pcount','Prestiges',G.prestigeCount],
+    ['frenzies','Frenzies',G.frenzies],
+    ['totprods','Producers',totalProducers()],
+    ['achcount','Achievements',unlocked.size+'/'+ACHS.length],
+    ['upgcount','Upgrades',Object.keys(G.upgrades).length],
+  ];
+  sc.innerHTML=cells.map(([id,lbl,val])=>`
+    <div class="sc"><div class="scv">${val}</div><div class="scl">${lbl}</div></div>`).join('');
+
+  // Breakdown
+  const bdk=document.getElementById('bdk-list');
+  const totalCPS=G.cps||1;
+  let rows='';
+  PRODS.forEach(p=>{
+    const owned=G.prods[p.id]||0;
+    if(!owned) return;
+    const cps=owned*p.cps*(prodMults[p.id]||1)*globalMult*G.prestigeMult*mutCPSMult;
+    const pct=totalCPS>0?(cps/totalCPS*100).toFixed(1):0;
+    rows+=`<div class="bdk-row">
+      <span class="bnm">${p.ico} ${p.name} ×${owned}</span>
+      <span class="bcp">${fmtD(cps)}</span>
+      <span class="bpct">${pct}%</span>
+    </div>`;
+  });
+  bdk.innerHTML=rows||'<div style="color:var(--muted);font-size:.62rem;padding:5px">No producers yet</div>';
+
+  // Frenzy counter class
+  if(G.frenzyActive) document.getElementById('main-count').classList.add('frenzy-count');
+  else document.getElementById('main-count').classList.remove('frenzy-count');
+
+  // Combo bar
+  if(combo>0&&Date.now()<comboExpAt){
+    const rem=comboExpAt-Date.now();
+    document.getElementById('combo-bfill').style.transform=`scaleX(${Math.max(0,rem/comboWindow)})`;
+  }
+
+  // Mutation unlock check
+  MUTATIONS.forEach(m=>{ if(m.locked&&m.unlockReq(G)) m.locked=false; });
+  updateEventStrip();
+}
+
+// ============================================================
+//  FX: PARTICLES & CANVAS
+// ============================================================
+const fxCanvas=document.getElementById('fx-canvas');
+const fxCtx=fxCanvas.getContext('2d');
+const particles=[];
+const textParticles=[];
+
+function resizeFXCanvas(){
+  fxCanvas.width=document.getElementById('stage').clientWidth;
+  fxCanvas.height=document.getElementById('stage').clientHeight;
+}
+
+function addClickParticle(x,y){
+  const colors=['#f5b942','#ffe87a','#ffaa44','#ff7700','#ffffff'];
+  for(let i=0;i<8;i++){
+    const angle=Math.random()*Math.PI*2;
+    const speed=40+Math.random()*80;
+    particles.push({
+      x,y,
+      vx:Math.cos(angle)*speed,vy:Math.sin(angle)*speed-40,
+      r:3+Math.random()*5,
+      life:1,decay:.025+Math.random()*.025,
+      color:colors[Math.floor(Math.random()*colors.length)],
+      type:'circle'
+    });
+  }
+}
+
+function spawnFXText(x,y,text,color,combo){
+  const size=Math.min(1.1+combo*.035,2.8);
+  textParticles.push({x,y,text,color,size,life:1,vy:-2,decay:.022});
+}
+
+function triggerRipple(x,y){
+  const r=document.getElementById('click-ripple');
+  r.style.left=(x-100)+'px';
+  r.style.top=(y-100)+'px';
+  r.classList.remove('go');
+  void r.offsetWidth;
+  r.classList.add('go');
+}
+
+function fxLoop(){
+  fxCtx.clearRect(0,0,fxCanvas.width,fxCanvas.height);
+
+  // Update & draw particles
+  for(let i=particles.length-1;i>=0;i--){
+    const p=particles[i];
+    p.x+=p.vx*.016; p.y+=p.vy*.016;
+    p.vy+=120*.016; // gravity
+    p.life-=p.decay;
+    if(p.life<=0){particles.splice(i,1);continue;}
+    fxCtx.globalAlpha=p.life;
+    fxCtx.fillStyle=p.color;
+    fxCtx.beginPath();
+    fxCtx.arc(p.x,p.y,p.r*p.life,0,Math.PI*2);
+    fxCtx.fill();
+  }
+
+  // Text particles
+  for(let i=textParticles.length-1;i>=0;i--){
+    const p=textParticles[i];
+    p.y+=p.vy; p.life-=p.decay;
+    if(p.life<=0){textParticles.splice(i,1);continue;}
+    fxCtx.globalAlpha=p.life;
+    fxCtx.font=`bold ${p.size}rem 'Fredoka One',cursive`;
+    fxCtx.fillStyle=p.color;
+    fxCtx.textAlign='center';
+    fxCtx.shadowColor=p.color;
+    fxCtx.shadowBlur=8;
+    fxCtx.fillText(p.text,p.x,p.y);
+    fxCtx.shadowBlur=0;
+  }
+  fxCtx.globalAlpha=1;
+  fxCtx.textAlign='left';
+
+  requestAnimationFrame(fxLoop);
+}
+
+// ============================================================
+//  FX: BACKGROUND CANVAS
+// ============================================================
+const bgCanvas=document.getElementById('bg-canvas');
+const bgCtx=bgCanvas.getContext('2d');
+const stars=[];
+
+function initBG(){
+  bgCanvas.width=window.innerWidth;
+  bgCanvas.height=window.innerHeight;
+  for(let i=0;i<60;i++){
+    stars.push({
+      x:Math.random()*bgCanvas.width,
+      y:Math.random()*bgCanvas.height,
+      r:.8+Math.random()*1.8,
+      phase:Math.random()*Math.PI*2,
+      speed:.3+Math.random()*.7,
+      color:Math.random()<.3?'#f5b942':'#ffe87a'
+    });
+  }
+}
+
+function bgLoop(){
+  bgCtx.clearRect(0,0,bgCanvas.width,bgCanvas.height);
+  const t=Date.now()*.001;
+  stars.forEach(s=>{
+    const o=.15+.15*Math.sin(t*s.speed+s.phase);
+    bgCtx.globalAlpha=o;
+    bgCtx.fillStyle=s.color;
+    bgCtx.beginPath();
+    bgCtx.arc(s.x,s.y,s.r,0,Math.PI*2);
+    bgCtx.fill();
+  });
+  bgCtx.globalAlpha=1;
+  requestAnimationFrame(bgLoop);
+}
+
+// ============================================================
+//  SCREEN FX
+// ============================================================
+function screenFlash(cls){
+  const el=document.getElementById('sfx');
+  el.className=cls+' fo';
+  setTimeout(()=>el.classList.remove('fo'),180);
+}
+
+// ============================================================
+//  NOTIFICATIONS
+// ============================================================
+function showNotif(msg,type){
+  const el=document.createElement('div');
+  el.className='notif'+(type?' '+type:'');
+  el.textContent=msg;
+  document.getElementById('notifs').appendChild(el);
+  setTimeout(()=>el.remove(),3100);
+}
+
+function showBanner(msg){
+  const b=document.getElementById('event-banner');
+  b.textContent=msg;
+  b.style.display='block';
+  void b.offsetWidth;
+  clearTimeout(showBanner._t);
+  showBanner._t=setTimeout(()=>b.style.display='none',3500);
+}
+
+// ============================================================
+//  TABS
+// ============================================================
+function rpTab(id,btn){
+  document.querySelectorAll('.rp-tab').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.rp-pane').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('rp-'+id).classList.add('active');
+}
+
+function setBuyMode(n,btn){
+  buyMode=n;
+  document.querySelectorAll('.bm-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderShop();
+}
+
+// ============================================================
+//  STATS MODAL (opens a full stats overlay)
+// ============================================================
+function openStats(){
+  document.getElementById('modal-title').textContent='📊 Statistics';
+  const lines=[
+    ['Total Cheese',fmt(G.totalCh)],
+    ['Cheese Now',fmt(G.cheese)],
+    ['Cheese/sec',fmtD(G.cps)],
+    ['Clicks',fmt(G.clicks)],
+    ['Click Power',fmt(effectiveClickPower())],
+    ['Best Combo','×'+G.bestCombo],
+    ['Golden Caught',G.goldenCaught],
+    ['Frenzies',G.frenzies],
+    ['Achievements',unlocked.size+'/'+ACHS.length],
+    ['Upgrades',Object.keys(G.upgrades).length+'/'+UPGRADES.length],
+    ['Total Producers',totalProducers()],
+    ['Prestiges',G.prestigeCount],
+    ['Aged Cheese',G.agedCheese],
+    ['Prestige Mult','×'+G.prestigeMult.toFixed(3)],
+    ['Time Played',fmtT(G.timePlayed)],
+    ['Longest Offline',fmtT(G.longestOffline)],
+    ['Mold Survived',G.moldSurvived?'Yes':'No'],
+    ['Active Mutation',G.activeMutation||'None'],
+  ];
+  document.getElementById('modal-body').innerHTML=
+    `<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 14px;font-size:.75rem">`+
+    lines.map(([l,v])=>`<div style="color:var(--muted)">${l}</div><div style="color:var(--gold-bright);font-weight:700">${v}</div>`).join('')+
+    `</div>`;
+  document.getElementById('modal-conf').style.display='none';
+  document.getElementById('modal-canc').textContent='Close';
+  document.getElementById('modal-canc').onclick=()=>{
+    closeModal();
+    document.getElementById('modal-conf').style.display='';
+    document.getElementById('modal-canc').textContent='Cancel';
+    document.getElementById('modal-canc').onclick=closeModal;
+  };
+  document.getElementById('modal-bg').classList.add('open');
+}
+
+function confirmReset(){
+  document.getElementById('modal-title').textContent='⚠️ Reset Everything?';
+  document.getElementById('modal-body').innerHTML=
+    `This will <strong style="color:var(--red)">permanently delete all progress</strong>, including cheese, producers, upgrades, prestiges, achievements, and stats.<br><br>This cannot be undone.`;
+  document.getElementById('modal-conf').onclick=()=>{localStorage.removeItem('cheeseclicker_ult');location.reload();};
+  document.getElementById('modal-canc').onclick=closeModal;
+  document.getElementById('modal-bg').classList.add('open');
+}
+
+// ============================================================
+//  SAVE / LOAD
+// ============================================================
+const SAVE_KEY='cheeseclicker_ult';
+
+function saveGame(){
+  const save={
+    G,prodMults,globalMult,comboWindow,comboBonusMult,
+    offlineMult,goldenMult,cpsClickRatio,
+    mutClickMult,mutCPSMult,mutNoClick,mutGoldenMult,mutOfflineMult,
+    unlocked:[...unlocked],completedMs:[...completedMs],
+    ts:Date.now(),v:3
+  };
+  try{
+    localStorage.setItem(SAVE_KEY,JSON.stringify(save));
+    const ind=document.getElementById('save-ind');
+    ind.classList.add('show');
+    setTimeout(()=>ind.classList.remove('show'),1500);
+  }catch(e){}
+}
+
+function loadGame(){
+  try{
+    const raw=localStorage.getItem(SAVE_KEY);
+    if(!raw) return;
+    const s=JSON.parse(raw);
+    if(!s||s.v!==3){
+      // try legacy migration if needed
+    }
+    G={...G,...s.G};
+    if(s.prodMults) prodMults={...prodMults,...s.prodMults};
+    if(s.globalMult) globalMult=s.globalMult;
+    if(s.comboWindow) comboWindow=s.comboWindow;
+    if(s.comboBonusMult) comboBonusMult=s.comboBonusMult;
+    if(s.offlineMult) offlineMult=s.offlineMult;
+    if(s.goldenMult) goldenMult=s.goldenMult;
+    if(s.cpsClickRatio) cpsClickRatio=s.cpsClickRatio;
+    if(s.mutClickMult!==undefined) mutClickMult=s.mutClickMult;
+    if(s.mutCPSMult!==undefined) mutCPSMult=s.mutCPSMult;
+    if(s.mutNoClick!==undefined) mutNoClick=s.mutNoClick;
+    if(s.mutGoldenMult!==undefined) mutGoldenMult=s.mutGoldenMult;
+    if(s.mutOfflineMult!==undefined) mutOfflineMult=s.mutOfflineMult;
+    if(s.unlocked) unlocked=new Set(s.unlocked);
+    if(s.completedMs) completedMs=new Set(s.completedMs);
+
+    // Offline progress
+    if(s.ts){
+      const offSecs=Math.min((Date.now()-s.ts)/1000,3600*12);
+      if(offSecs>30){
+        G.longestOffline=Math.max(G.longestOffline||0,offSecs);
+        recalcCPS();
+        const offMult=offlineMult*(s.mutOfflineMult||1);
+        const offEarned=G.cps*offSecs*offMult*0.5;
+        if(offEarned>0){
+          G.cheese+=offEarned; G.totalCh+=offEarned;
+          setTimeout(()=>{
+            document.getElementById('modal-title').textContent='💤 Welcome Back!';
+            document.getElementById('modal-body').innerHTML=
+              `<div id="offline-cheese">+${fmt(offEarned)} 🧀</div>`+
+              `You were away for <strong>${fmtT(offSecs)}</strong>.<br>Your cheese empire kept working!`;
+            document.getElementById('modal-conf').style.display='none';
+            document.getElementById('modal-canc').textContent='Claim!';
+            document.getElementById('modal-canc').onclick=()=>{
+              closeModal();
+              document.getElementById('modal-conf').style.display='';
+              document.getElementById('modal-canc').textContent='Cancel';
+              document.getElementById('modal-canc').onclick=closeModal;
+            };
+            document.getElementById('modal-bg').classList.add('open');
+          },1200);
+        }
+      }
+    }
+  }catch(e){console.error('Load error',e);}
+}
+
+// ============================================================
+//  KEYBOARD SHORTCUTS
+// ============================================================
+document.addEventListener('keydown',e=>{
+  if(e.code==='Space'){e.preventDefault();
+    const w=document.getElementById('cheese-wrap');
+    const rect=document.getElementById('stage').getBoundingClientRect();
+    handleClick({clientX:rect.left+rect.width/2,clientY:rect.top+rect.height/2,preventDefault:()=>{}});
+  }
+  if(e.key==='s'||e.key==='S') saveGame();
+  if(e.key==='1') setBuyMode(1,document.querySelectorAll('.bm-btn')[0]);
+  if(e.key==='2') setBuyMode(10,document.querySelectorAll('.bm-btn')[1]);
+  if(e.key==='3') setBuyMode(100,document.querySelectorAll('.bm-btn')[2]);
+  if(e.key==='4') setBuyMode(-1,document.querySelectorAll('.bm-btn')[3]);
+});
+
+// ============================================================
+//  RESIZE
+// ============================================================
+window.addEventListener('resize',()=>{
+  resizeFXCanvas();
+  bgCanvas.width=window.innerWidth;
+  bgCanvas.height=window.innerHeight;
+});
+
+// ============================================================
+//  INIT
+// ============================================================
+function init(){
+  loadGame();
+  reapplyAllUpgrades();
+  reapplyMutation();
+  recalcCPS();
+  renderShop();
+  renderAchs();
+  renderMilestones();
+  renderMutations();
+  updateUI();
+  checkAchs();
+  checkMilestones();
+
+  initBG(); bgLoop();
+  resizeFXCanvas(); fxLoop();
+
+  // Main game tick — 30fps
+  setInterval(()=>{
+    gameTick();
+    recalcCPS();
+    updateUI();
+    updateEventStrip();
+    checkAchs();
+    checkMilestones();
+  }, 33);
+
+  // Shop refresh 2fps (cheaper)
+  setInterval(renderShop, 500);
+
+  // Mutation unlock check
+  setInterval(()=>{
+    MUTATIONS.forEach(m=>{if(m.locked&&m.unlockReq(G)){m.locked=false;renderMutations();}});
+  }, 2000);
+
+  // Auto-save every 30s
+  setInterval(saveGame, 30000);
+
+  // Golden cheese
+  scheduleGolden();
+
+  // Mold events
+  scheduleMold();
+
+  // Combo animation frame
+  setInterval(updateComboUI, 50);
+
+  // Welcome
+  showNotif('🧀 Welcome to Cheese Clicker! Start clicking!');
+}
+
+window.addEventListener('load', init);
+window.addEventListener('beforeunload', saveGame);
+</script>
+
+<style>
+/* ============================================================
+   EXTRA STYLES — ENHANCEMENTS
+============================================================ */
+
+/* CHEAT / EASTER EGG input */
+#konami{position:fixed;bottom:40px;left:50%;transform:translateX(-50%);
+  background:linear-gradient(135deg,#0a0020,#1a0040);border:2px solid var(--purple2);
+  border-radius:14px;padding:16px 28px;font-family:var(--font-title);font-size:1.2rem;
+  color:var(--purple);text-align:center;z-index:5000;display:none;
+  box-shadow:0 0 60px rgba(200,126,255,.5),0 10px 40px rgba(0,0,0,.8);
+  animation:konamiPop .5s cubic-bezier(.34,1.56,.64,1)}
+@keyframes konamiPop{from{opacity:0;transform:translateX(-50%) scale(.3) translateY(40px)}
+  to{opacity:1;transform:translateX(-50%) scale(1) translateY(0)}}
+
+/* CHEESE RAIN */
+.cheese-rain{position:fixed;z-index:3000;pointer-events:none;
+  font-size:1.8rem;animation:rainFall linear forwards}
+@keyframes rainFall{from{opacity:1;transform:translateY(-60px) rotate(0deg)}
+  to{opacity:0;transform:translateY(110vh) rotate(360deg)}}
+
+/* PRESTIGE SCREEN */
+#prestige-flash{position:fixed;inset:0;z-index:4000;pointer-events:none;
+  display:none;align-items:center;justify-content:center;
+  background:radial-gradient(ellipse,rgba(200,126,255,.3),rgba(0,0,0,.95));
+  animation:pfIn .6s ease-out}
+@keyframes pfIn{from{opacity:0}to{opacity:1}}
+#prestige-flash.show{display:flex}
+#prestige-flash-txt{font-family:var(--font-title);font-size:3rem;color:var(--purple);
+  text-shadow:0 0 50px rgba(200,126,255,.8),0 0 100px rgba(200,126,255,.4);
+  text-align:center;animation:pfTxt 1s ease-out}
+@keyframes pfTxt{from{transform:scale(.2);opacity:0}to{transform:scale(1);opacity:1}}
+
+/* CLICK TRAIL */
+.click-trail{position:fixed;pointer-events:none;z-index:1500;font-size:1.2rem;
+  animation:trailFade .7s ease-out forwards}
+@keyframes trailFade{from{opacity:.9;transform:scale(1) translateY(0)}
+  to{opacity:0;transform:scale(.4) translateY(-40px)}}
+
+/* AUTO-CLICK VISUAL */
+#auto-indicator{position:absolute;bottom:10px;font-size:.58rem;color:var(--muted);
+  display:none;pointer-events:none}
+
+/* CPS TICKER */
+#cps-ticker{position:absolute;right:8px;top:8px;font-size:.58rem;color:var(--gold-dim);
+  text-align:right;pointer-events:none;z-index:5}
+
+/* LUCKY CHEESE indicator */
+#lucky-banner{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+  font-family:var(--font-title);font-size:2.5rem;color:var(--gold-shine);
+  text-shadow:0 0 40px rgba(255,215,0,.9);z-index:4000;pointer-events:none;
+  display:none;animation:luckyPop .8s cubic-bezier(.34,1.56,.64,1) forwards}
+@keyframes luckyPop{0%{opacity:0;transform:translate(-50%,-50%) scale(.2)}
+  60%{opacity:1;transform:translate(-50%,-50%) scale(1.15)}
+  100%{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+
+/* BIG CHEESE GLOW LEVELS */
+.cheese-glow-1 #cheese-svg-wrap{filter:drop-shadow(0 8px 28px rgba(245,185,66,.6))!important}
+.cheese-glow-2 #cheese-svg-wrap{filter:drop-shadow(0 8px 40px rgba(255,153,0,.8)) drop-shadow(0 0 20px rgba(255,215,0,.4))!important}
+.cheese-glow-3 #cheese-svg-wrap{filter:drop-shadow(0 0 50px rgba(255,153,0,1)) drop-shadow(0 0 30px rgba(255,215,0,.7))!important;
+  animation:chFloat 3.5s ease-in-out infinite,cheesePulse 1s ease-in-out infinite!important}
+@keyframes cheesePulse{0%,100%{filter:drop-shadow(0 0 50px rgba(255,153,0,1))}
+  50%{filter:drop-shadow(0 0 70px rgba(255,153,0,1)) drop-shadow(0 0 40px rgba(255,215,0,.8))}}
+
+/* WARP SPEED (end game) */
+.warp-mode{background:radial-gradient(ellipse 60% 80% at 50% 50%,rgba(100,50,200,.15),transparent 70%)!important}
+
+/* NUMBER POP ANIMATION */
+@keyframes numPop{0%{transform:scale(1)}50%{transform:scale(1.12)}100%{transform:scale(1)}}
+.num-pop{animation:numPop .2s ease-out}
+
+/* PROGRESS RING FOR PRESTIGE */
+#prestige-ring-svg{display:block;margin:0 auto 6px;opacity:.8}
+
+/* SHOP CATEGORY TABS */
+#shop-cat-bar{display:flex;gap:3px;padding:5px 8px 0;background:var(--bg-dark)}
+.scat-btn{flex:1;background:none;border:none;border-bottom:2px solid transparent;
+  color:var(--muted);font-family:var(--font-body);font-size:.55rem;font-weight:700;
+  padding:4px 2px;cursor:pointer;transition:all .15s;text-align:center}
+.scat-btn.active{color:var(--gold-bright);border-bottom-color:var(--gold-bright)}
+.scat-btn:hover:not(.active){color:var(--gold-dim)}
+
+/* IDLE PARTICLES around cheese */
+.idle-particle{position:absolute;pointer-events:none;font-size:.9rem;
+  animation:idleOrbit linear infinite}
+@keyframes idleOrbit{
+  from{transform:rotate(var(--start-angle)) translateX(var(--orbit-r)) rotate(calc(-1 * var(--start-angle)))}
+  to{transform:rotate(calc(var(--start-angle) + 360deg)) translateX(var(--orbit-r)) rotate(calc(-1 * (var(--start-angle) + 360deg)))}}
+
+/* SPECIAL CHEESE TIERS */
+.cheese-tier-1{color:#f5b942}
+.cheese-tier-2{color:#5ecf6b}
+.cheese-tier-3{color:#4ab8ff}
+.cheese-tier-4{color:#c87eff}
+.cheese-tier-5{color:#ff9900;text-shadow:0 0 8px rgba(255,153,0,.6)}
+
+/* FRENZY CHEESE SIZE BOOST */
+body.frenzy-active #cheese-svg-wrap{
+  animation:chFloat 2s ease-in-out infinite,frenzyScale 0.5s ease-in-out infinite alternate!important}
+@keyframes frenzyScale{from{transform:scale(1)}to{transform:scale(1.04)}}
+
+/* SCROLL HINT */
+.scroll-hint{display:flex;align-items:center;justify-content:center;
+  padding:6px;color:var(--muted);font-size:.58rem;
+  border-top:1px solid var(--border);cursor:default}
+</style>
+
+<div id="konami"></div>
+<div id="prestige-flash"><div id="prestige-flash-txt">✨ PRESTIGE ✨<br><span style="font-size:1.2rem;color:var(--cream)">Your cheese has aged beautifully.</span></div></div>
+<div id="lucky-banner">🍀 LUCKY CHEESE!</div>
+
+<script>
+// ============================================================
+//  ENHANCEMENT SCRIPT — PART 2
+// ============================================================
+
+// ---- ENHANCED PRESTIGE ----
+const origDoPrestige=doPrestige;
+doPrestige=function(ac){
+  // Prestige flash
+  const pf=document.getElementById('prestige-flash');
+  document.getElementById('prestige-flash-txt').innerHTML=
+    `✨ PRESTIGE ✨<br><span style="font-size:1.1rem;color:var(--cream)">+${ac} Aged Cheese<br>Multiplier: ×${(1+(G.agedCheese+ac)*0.05).toFixed(2)}</span>`;
+  pf.classList.add('show');
+  triggerCheeseRain();
+  setTimeout(()=>{
+    pf.classList.remove('show');
+    origDoPrestige(ac);
+  },1800);
+};
+
+// ---- CHEESE RAIN ----
+function triggerCheeseRain(){
+  const emojis=['🧀','⭐','✨','🌟','💫','🏆','👑'];
+  for(let i=0;i<35;i++){
+    setTimeout(()=>{
+      const el=document.createElement('div');
+      el.className='cheese-rain';
+      el.textContent=emojis[Math.floor(Math.random()*emojis.length)];
+      el.style.left=Math.random()*100+'vw';
+      el.style.animationDuration=(1.5+Math.random()*2)+'s';
+      el.style.animationDelay=(Math.random()*.5)+'s';
+      el.style.fontSize=(1.2+Math.random()*1.5)+'rem';
+      document.body.appendChild(el);
+      setTimeout(()=>el.remove(),3500);
+    },i*60);
+  }
+}
+
+// ---- CLICK TRAIL ----
+document.addEventListener('mousemove',(e)=>{
+  if(!clickTrailEnabled) return;
+  const el=document.createElement('div');
+  el.className='click-trail';
+  el.textContent='🧀';
+  el.style.left=(e.clientX-10)+'px';
+  el.style.top=(e.clientY-10)+'px';
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),700);
+});
+let clickTrailEnabled=false;
+// Enable trail after prestige
+const origPrestMult=G.prestigeMult;
+
+// ---- CHEESE GLOW LEVEL based on CPS ----
+function updateCheeseGlow(){
+  const wrap=document.getElementById('cheese-wrap');
+  wrap.classList.remove('cheese-glow-1','cheese-glow-2','cheese-glow-3');
+  if(G.cps>=1000000) wrap.classList.add('cheese-glow-3');
+  else if(G.cps>=1000) wrap.classList.add('cheese-glow-2');
+  else if(G.cps>=1) wrap.classList.add('cheese-glow-1');
+  if(G.frenzyActive) document.body.classList.add('frenzy-active');
+  else document.body.classList.remove('frenzy-active');
+}
+setInterval(updateCheeseGlow, 500);
+
+// ---- IDLE PARTICLES (orbit cheese when high CPS) ----
+let idleParticlesCreated=false;
+function createIdleParticles(){
+  if(idleParticlesCreated) return;
+  idleParticlesCreated=true;
+  const wrap=document.getElementById('cheese-svg-wrap');
+  const icons=['🐭','🌾','🏭','⛏️','🔬','💰','⭐','✨'];
+  icons.forEach((ico,i)=>{
+    const el=document.createElement('div');
+    el.className='idle-particle';
+    const angle=(i/icons.length)*360;
+    const r=120+Math.random()*20;
+    el.style.setProperty('--start-angle',angle+'deg');
+    el.style.setProperty('--orbit-r',r+'px');
+    el.style.animationDuration=(8+Math.random()*6)+'s';
+    el.style.opacity='.5';
+    el.textContent=ico;
+    document.getElementById('stage-inner').appendChild(el);
+  });
+}
+setInterval(()=>{
+  if(G.cps>=100&&!idleParticlesCreated) createIdleParticles();
+},3000);
+
+// ---- KONAMI CODE ----
+let konamiSeq='',konamiCode='arrowuparrowuparrowdownarrowdownarrowleftarrowrightarrowleftarrowrightba';
+document.addEventListener('keydown',(e)=>{
+  konamiSeq+=e.key.toLowerCase();
+  if(konamiSeq.length>konamiCode.length) konamiSeq=konamiSeq.slice(-konamiCode.length);
+  if(konamiSeq===konamiCode){
+    const k=document.getElementById('konami');
+    k.innerHTML='🎮 KONAMI CODE! +1,000,000 Cheese! 🎮';
+    k.style.display='block';
+    G.cheese+=1000000; G.totalCh+=1000000;
+    triggerCheeseRain();
+    setTimeout(()=>k.style.display='none',3000);
+    showNotif('🎮 Konami Code! +1M cheese!','green');
+  }
+});
+
+// ---- LUCKY CHEESE (rare random massive bonus) ----
+function scheduleLucky(){
+  const d=300000+Math.random()*600000; // 5-15 min
+  setTimeout(()=>{
+    triggerLucky();
+    scheduleLucky();
+  },d);
+}
+function triggerLucky(){
+  const bonus=Math.max(10000,G.cheese*.15);
+  G.cheese+=bonus; G.totalCh+=bonus;
+  const el=document.getElementById('lucky-banner');
+  el.textContent='🍀 LUCKY CHEESE! +'+fmt(bonus)+'!';
+  el.style.display='block';
+  screenFlash('flash-gold');
+  triggerCheeseRain();
+  setTimeout(()=>el.style.display='none',2500);
+  showNotif('🍀 Lucky Cheese! +'+fmt(bonus)+' bonus cheese!','green');
+}
+scheduleLucky();
+
+// ---- DOUBLE CLICK DETECTOR ----
+let lastClickTime=0;
+const origHandleClick=handleClick;
+handleClick=function(e){
+  const now=Date.now();
+  if(now-lastClickTime<150){
+    // Double click — extra bonus
+    const extra=effectiveClickPower()*5;
+    G.cheese+=extra; G.totalCh+=extra;
+    const rect=document.getElementById('stage').getBoundingClientRect();
+    const cx=e.touches?e.touches[0].clientX:e.clientX;
+    const cy=e.touches?e.touches[0].clientY:e.clientY;
+    spawnFXText(cx-rect.left,cy-rect.top,'DOUBLE! +'+fmt(extra),'#ff77c8',combo);
+  }
+  lastClickTime=now;
+  origHandleClick(e);
+};
+
+// ---- WARP MODE (visual) for extreme production ----
+setInterval(()=>{
+  const stage=document.getElementById('stage');
+  if(G.cps>=1e9) stage.classList.add('warp-mode');
+  else stage.classList.remove('warp-mode');
+},2000);
+
+// ---- CHEESE TIER DISPLAY ----
+function getCheeseType(){
+  if(G.totalCh>=1e15) return {name:'Cosmic Cheese',tier:5,color:'#ff9900'};
+  if(G.totalCh>=1e12) return {name:'Quantum Cheese',tier:4,color:'#c87eff'};
+  if(G.totalCh>=1e9) return {name:'Divine Cheese',tier:3,color:'#4ab8ff'};
+  if(G.totalCh>=1e6) return {name:'Aged Cheese',tier:2,color:'#5ecf6b'};
+  if(G.totalCh>=1000) return {name:'Fine Cheese',tier:1,color:'#f5b942'};
+  return {name:'Fresh Cheese',tier:0,color:'#ffe87a'};
+}
+function updateCheeseType(){
+  const t=getCheeseType();
+  const lbl=document.getElementById('cheese-type-lbl');
+  if(lbl){lbl.textContent=t.name;lbl.style.color=t.color;}
+}
+setInterval(updateCheeseType,2000);
+
+// ---- AUTO-CLICKER UPGRADE SYSTEM ----
+// (Premium upgrade: click x times per second automatically)
+let autoClickRate=0;
+let autoClickInterval=null;
+
+function setAutoClick(rate){
+  autoClickRate=rate;
+  if(autoClickInterval) clearInterval(autoClickInterval);
+  if(rate>0){
+    autoClickInterval=setInterval(()=>{
+      if(mutNoClick) return;
+      const cp=effectiveClickPower();
+      const cm=1+combo*.05*comboBonusMult;
+      const earned=cp*cm*0.5; // auto-click worth 50% of manual
+      G.cheese+=earned; G.totalCh+=earned;
+    },Math.floor(1000/rate));
+  }
+}
+
+// Auto-click unlocks from late upgrades
+const LATE_UPGRADES=[
+  {id:'auto1',name:'Auto Nibbler',  ico:'🤖',cost:1e8, tag:'auto',rate:1,  desc:'Auto-clicks 1 time/sec (50% value)'},
+  {id:'auto2',name:'Auto Chomper',  ico:'🦾',cost:1e10,tag:'auto',rate:5,  desc:'Auto-clicks 5 times/sec'},
+  {id:'auto3',name:'Quantum Clicker',ico:'⚛️',cost:1e13,tag:'auto',rate:20, desc:'Auto-clicks 20 times/sec'},
+];
+
+// Register late upgrades into system
+LATE_UPGRADES.forEach(u=>{
+  UPGRADES.push({
+    ...u,
+    apply(){setAutoClick(autoClickRate+u.rate);}
+  });
+});
+
+// ---- ENHANCED NUMBER COUNTER ANIMATION ----
+let displayedCheese=0;
+function animateCounter(){
+  const target=G.cheese;
+  const diff=target-displayedCheese;
+  if(Math.abs(diff)>1){
+    displayedCheese+=diff*0.15;
+    if(Math.abs(target-displayedCheese)<1) displayedCheese=target;
+  } else {
+    displayedCheese=target;
+  }
+  const el=document.getElementById('main-count');
+  const old=el.textContent;
+  const newVal=fmt(displayedCheese);
+  if(old!==newVal){
+    el.textContent=newVal;
+    // pop animation
+    el.classList.remove('num-pop');
+    void el.offsetWidth;
+    el.classList.add('num-pop');
+  }
+}
+setInterval(animateCounter,50);
+
+// ---- PRESTIGE RINGS SVG in prestige bar ----
+(function addPrestigeRing(){
+  const bar=document.getElementById('prestige-bar');
+  const svg=document.createElement('div');
+  svg.id='prestige-ring-container';
+  svg.style.cssText='display:flex;gap:6px;justify-content:center;margin-bottom:5px';
+  for(let i=0;i<10;i++){
+    const s=document.createElementNS('http://www.w3.org/2000/svg','svg');
+    s.setAttribute('width','16');s.setAttribute('height','16');s.setAttribute('viewBox','0 0 16 16');
+    const c=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    c.setAttribute('cx','8');c.setAttribute('cy','8');c.setAttribute('r','6');
+    c.setAttribute('fill','none');c.setAttribute('stroke','#3a0060');c.setAttribute('stroke-width','2');
+    s.appendChild(c);
+    s.dataset.i=i;
+    svg.appendChild(s);
+  }
+  bar.insertBefore(svg,bar.firstChild);
+
+  setInterval(()=>{
+    const rings=document.querySelectorAll('#prestige-ring-container svg circle');
+    rings.forEach((r,i)=>{
+      if(i<G.prestigeCount){
+        r.setAttribute('stroke','#c87eff');
+        r.setAttribute('fill','#6622bb');
+      }
+    });
+  },1000);
+})();
+
+// ---- CHEESE TYPE LABEL in stats ----
+(function addCheeseTypeLabel(){
+  const row=document.getElementById('stats-row');
+  const p=document.createElement('div');
+  p.className='stat-pill';
+  p.innerHTML='<div class="sp-val" id="cheese-type-lbl">Fresh Cheese</div><div class="sp-lbl">cheese type</div>';
+  row.appendChild(p);
+})();
+
+// ---- PRODUCER SYNERGIES ----
+// Farms boost Factories, Labs boost Dimensions
+function applySynergies(){
+  const farmOwned=G.prods.farm||0;
+  const miceOwned=G.prods.mice||0;
+  const labOwned=G.prods.lab||0;
+
+  // Mice swarm bonus: 1% per 10 mice
+  const miceBonus=1+Math.floor(miceOwned/10)*0.01;
+  // Farm/Factory synergy: farms give factories +0.5% per farm
+  const farmBonus=1+farmOwned*0.005;
+  // Lab/Dimension synergy: labs give dimensions +1% per lab
+  const labBonus=1+labOwned*0.01;
+
+  // Apply via temp mods (recalculated each tick)
+  G._synergy={miceBonus,farmBonus,labBonus};
+}
+
+// Hook into recalcCPS
+const _origRecalcCPS=recalcCPS;
+recalcCPS=function(){
+  applySynergies();
+  let cps=0;
+  PRODS.forEach(p=>{
+    const owned=G.prods[p.id]||0;
+    if(owned>0){
+      let syn=1;
+      if(p.id==='mice') syn=(G._synergy&&G._synergy.miceBonus)||1;
+      if(p.id==='factory') syn=(G._synergy&&G._synergy.farmBonus)||1;
+      if(p.id==='dimension') syn=(G._synergy&&G._synergy.labBonus)||1;
+      cps+=owned*p.cps*(prodMults[p.id]||1)*globalMult*syn;
+    }
+  });
+  cps*=G.prestigeMult;
+  cps*=mutCPSMult;
+  if(G.frenzyActive&&Date.now()<G.frenzyEnd) cps*=3;
+  if(G.moldActive&&Date.now()<G.moldEnd) cps*=0.5;
+  G.cps=cps;
+  return cps;
+};
+
+// ---- AUTO-SAVE STATUS ----
+setInterval(()=>{
+  const ind=document.getElementById('save-ind');
+  ind.classList.add('show');
+  saveGame();
+  setTimeout(()=>ind.classList.remove('show'),1500);
+},30000);
+
+// ---- MILESTONE BONUS REWARDS ----
+const msRewards={
+  ms3:()=>{G.clickPower+=5;showNotif('🎁 Milestone bonus: +5 click power!','green');},
+  ms5:()=>{globalMult*=1.1;showNotif('🎁 Milestone bonus: All CPS +10%!','green');},
+  ms6:()=>{comboWindow+=300;showNotif('🎁 Milestone bonus: Combo window +0.3s!','green');},
+  ms10:()=>{goldenMult*=1.5;showNotif('🎁 Milestone bonus: Golden cheese value +50%!','green');},
+};
+
+const _origCheckMs=checkMilestones;
+checkMilestones=function(){
+  MILESTONES.forEach(m=>{
+    const wasComplete=completedMs.has(m.id);
+    if(!wasComplete&&m.val(G)>=m.goal){
+      completedMs.add(m.id);
+      showMsPopup(m.ico+' '+m.name);
+      if(msRewards[m.id]) msRewards[m.id]();
+      renderMilestones();
+    }
+  });
+};
+
+// ---- TOUCH SUPPORT: Long-press for info ----
+let longPressTimer=null;
+document.getElementById('cheese-wrap').addEventListener('touchstart',(e)=>{
+  longPressTimer=setTimeout(()=>{
+    showNotif('CPS: '+fmtD(G.cps)+' | Click: +'+fmt(effectiveClickPower()),'blue');
+  },600);
+});
+document.getElementById('cheese-wrap').addEventListener('touchend',()=>{
+  clearTimeout(longPressTimer);
+});
+
+// ---- GOLDEN CHEESE STREAK ----
+let goldenStreak=0;
+const _origSpawnGolden=spawnGolden;
+
+// ---- CHEAT DETECTION (fun, not serious) ----
+let suspiciousClicks=0;
+let lastClickCheck=Date.now();
+setInterval(()=>{
+  const rate=suspiciousClicks/((Date.now()-lastClickCheck)/1000);
+  if(rate>30){
+    showNotif('⚠️ Easy there, speed clicker! You ok?','bad');
+  }
+  suspiciousClicks=0;
+  lastClickCheck=Date.now();
+},10000);
+
+// ---- SHOP SCROLLING HINT ----
+const shopPanel=document.getElementById('shop-panel');
+shopPanel.addEventListener('scroll',()=>{
+  // Hide scroll hint when scrolled
+});
+
+// ---- FINAL POLISH: CHEESE COUNTER POP ----
+let lastCheeseFloor=0;
+setInterval(()=>{
+  const floor=Math.floor(G.cheese/100)*100;
+  if(floor>lastCheeseFloor){
+    lastCheeseFloor=floor;
+    const el=document.getElementById('main-count');
+    el.style.transform='scale(1.06)';
+    setTimeout(()=>el.style.transform='',150);
+  }
+},200);
+
+// ---- TITLE UPDATE ----
+setInterval(()=>{
+  document.title='🧀 '+fmt(G.cheese)+' cheese — Cheese Clicker';
+},2000);
+
+// ---- DARK/LIGHT TOGGLE (bonus) ----
+let darkMode=true;
+function toggleTheme(){
+  darkMode=!darkMode;
+  if(!darkMode){
+    document.documentElement.style.setProperty('--bg-deep','#f5e8c8');
+    document.documentElement.style.setProperty('--bg-dark','#e8d5a8');
+    document.documentElement.style.setProperty('--bg-mid','#dcc890');
+    document.documentElement.style.setProperty('--bg-panel','#ede0b8');
+    document.documentElement.style.setProperty('--bg-card','#f0e4c0');
+    document.documentElement.style.setProperty('--bg-card2','#eadab0');
+    document.documentElement.style.setProperty('--white','#2a1800');
+    document.documentElement.style.setProperty('--cream','#2a1800');
+    document.documentElement.style.setProperty('--muted','#8a6a40');
+    showNotif('☀️ Light mode activated','blue');
+  } else {
+    document.documentElement.style.setProperty('--bg-deep','#0d0800');
+    document.documentElement.style.setProperty('--bg-dark','#150c00');
+    document.documentElement.style.setProperty('--bg-mid','#1e1100');
+    document.documentElement.style.setProperty('--bg-panel','#1a0e00');
+    document.documentElement.style.setProperty('--bg-card','#221500');
+    document.documentElement.style.setProperty('--bg-card2','#2a1a00');
+    document.documentElement.style.setProperty('--white','#fffef8');
+    document.documentElement.style.setProperty('--cream','#fff8e7');
+    document.documentElement.style.setProperty('--muted','#7a5a30');
+    showNotif('🌙 Dark mode activated','blue');
+  }
+}
+
+// Add theme toggle button
+const tbr=document.getElementById('topbar-right');
+const thBtn=document.createElement('button');
+thBtn.className='tb-btn'; thBtn.textContent='🌓';
+thBtn.onclick=toggleTheme; thBtn.title='Toggle theme';
+tbr.insertBefore(thBtn,tbr.firstChild);
+
+// ---- ENHANCED PRODUCER ICONS with level badges ----
+setInterval(()=>{
+  document.querySelectorAll('.prod-owned').forEach((el,i)=>{
+    const prod=PRODS[i];
+    if(!prod) return;
+    const owned=G.prods[prod.id]||0;
+    let badge='';
+    if(owned>=500) badge=' 🌟';
+    else if(owned>=200) badge=' 💎';
+    else if(owned>=100) badge=' 🔥';
+    else if(owned>=50) badge=' ⭐';
+    el.innerHTML=owned+(owned>0?badge:'');
+  });
+},1000);
+
+// ---- COMBO SOUND SIMULATION (visual feedback) ----
+setInterval(()=>{
+  if(combo>=20){
+    document.getElementById('combo-x').style.textShadow=
+      `0 0 ${20+combo}px rgba(255,153,0,.9),0 0 ${40+combo*2}px rgba(255,100,0,.5)`;
+  } else {
+    document.getElementById('combo-x').style.textShadow='';
+  }
+},100);
+
+// ---- KEYBOARD SHORTCUT HINTS ----
+setTimeout(()=>{
+  showNotif('💡 Tip: Press SPACE to click, S to save, 1-4 for buy mode!','blue');
+},5000);
+setTimeout(()=>{
+  showNotif('💡 Tip: Try the Konami Code for a secret bonus!','blue');
+},30000);
+
+// ---- PRODUCER PURCHASE ANIMATION ----
+const _origBuyProd=buyProducer;
+buyProducer=function(id){
+  const owned=G.prods[id]||0;
+  _origBuyProd(id);
+  if((G.prods[id]||0)>owned){
+    // Trigger stage flash
+    screenFlash('flash-gold');
+  }
+};
+
+// ---- FRENZY VISUAL ENHANCEMENT ----
+setInterval(()=>{
+  const main=document.getElementById('main-count');
+  if(G.frenzyActive) main.classList.add('frenzy-count');
+  else main.classList.remove('frenzy-count');
+},500);
+
+// ---- WARP BG for extreme production ----
+const bgCv=document.getElementById('bg-canvas');
+const bgCx=bgCv.getContext('2d');
+let warpLines=[];
+for(let i=0;i<20;i++){
+  warpLines.push({
+    x:Math.random()*window.innerWidth,
+    y:Math.random()*window.innerHeight,
+    speed:0.5+Math.random()*2,
+    len:20+Math.random()*60,
+    angle:Math.random()*Math.PI*2,
+    active:false
+  });
+}
+
+// ---- ENHANCE CPS DISPLAY FORMATTING ----
+setInterval(()=>{
+  const cpsEl=document.getElementById('cps-count');
+  const syns=G._synergy;
+  if(syns&&(syns.miceBonus>1||syns.farmBonus>1||syns.labBonus>1)){
+    const bonuses=[];
+    if(syns.miceBonus>1) bonuses.push('🐭 swarm');
+    if(syns.farmBonus>1) bonuses.push('🌾→🏭 syn');
+    if(syns.labBonus>1) bonuses.push('🔬→🌌 syn');
+    cpsEl.title='Synergies active: '+bonuses.join(', ');
+  }
+},3000);
+
+console.log(
+  '%c🧀 Cheese Clicker — Ultimate Edition %c
+Version 3.0 | Open source & unlockable!
+Konami code works. Check the source for secrets.',
+  'background:#f5b942;color:#1a0e00;font-size:16px;font-weight:bold;padding:8px 16px;border-radius:4px',
+  'color:#f5b942;font-size:12px'
+);
+</script>
+
+</body>
+</html>
